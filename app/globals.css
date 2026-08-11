@@ -1,0 +1,20 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #F8FAFC;
+  --card: #FFFFFF;
+  --border: #E2E8F0;
+  --navy: #0F2557;
+  --navy-light: #1E3A73;
+  --text: #0F172A;
+  --muted: #64748B;
+  --success: #16A34A;
+  --warning: #D97706;
+  --critical: #DC2626;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
