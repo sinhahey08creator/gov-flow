@@ -43,6 +43,12 @@ function riskColor(level: string) {
 
 export default function DashboardPage() {
   const [whyOpen, setWhyOpen] = useState(false);
+  const [newCaseOpen, setNewCaseOpen] = useState(false);
+  const [caseType, setCaseType] = useState("Land Compensation");
+  const [applicantName, setApplicantName] = useState("");
+  const [district, setDistrict] = useState("");
+  const [caseFile, setCaseFile] = useState<File | null>(null);
+  const [caseCreated, setCaseCreated] = useState(false);
   const [explanation, setExplanation] = useState<string | null>(null);
   const [explLoading, setExplLoading] = useState(false);
   const [simResult, setSimResult] = useState<ReturnType<typeof simulateOfficerUnavailable> | null>(null);
@@ -91,10 +97,180 @@ export default function DashboardPage() {
           <h1 className="text-2xl font-semibold" style={{ color: "var(--navy)" }}>GovFlow AI</h1>
           <p className="text-sm" style={{ color: "var(--muted)" }}>Intelligent Government Workflow Operations</p>
         </div>
-        <span className="text-xs font-medium px-3 py-1 rounded-full border" style={{ borderColor: "var(--border)", color: "var(--muted)" }}>
-          DEMO MODE · Synthetic Data
-        </span>
+        <div className="flex items-center gap-3">
+          <span
+            className="text-xs font-medium px-3 py-1 rounded-full border"
+            style={{ borderColor: "var(--border)", color: "var(--muted)" }}
+          >
+            DEMO MODE · Synthetic Data
+          </span>
+
+          <button
+            onClick={() => setNewCaseOpen(true)}
+            className="px-4 py-2 rounded-md text-sm font-medium text-white"
+            style={{ background: "#2563EB" }}
+          >
+            + New Case
+          </button>
+        </div>
       </div>
+      {newCaseOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-semibold" style={{ color: "var(--navy)" }}>
+                New Case
+              </h2>
+
+              <button
+                onClick={() => setNewCaseOpen(false)}
+                className="text-xl"
+                style={{ color: "var(--muted)" }}
+              >
+                ×
+              </button>
+            </div>
+
+            <p className="text-sm mb-6" style={{ color: "var(--muted)" }}>
+              Upload a government case document to begin processing.
+            </p>
+
+            <div className="space-y-4">
+
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Case Type
+                </label>
+
+                <select
+                  value={caseType}
+                  onChange={(e) => setCaseType(e.target.value)}
+                  className="w-full rounded-md border px-3 py-2 text-sm"
+                  style={{ borderColor: "var(--border)" }}
+                >
+                  <option>Land Compensation</option>
+                  <option>Birth Certificate Correction</option>
+                  <option>Citizen Grievance</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Applicant Name
+                </label>
+
+                <input
+                  type="text"
+                  value={applicantName}
+                  onChange={(e) => setApplicantName(e.target.value)}
+                  placeholder="Enter applicant name"
+                  className="w-full rounded-md border px-3 py-2 text-sm"
+                  style={{ borderColor: "var(--border)" }}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  District
+                </label>
+
+                <input
+                  type="text"
+                  value={district}
+                  onChange={(e) => setDistrict(e.target.value)}
+                  placeholder="Enter district"
+                  className="w-full rounded-md border px-3 py-2 text-sm"
+                  style={{ borderColor: "var(--border)" }}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Case Document
+                </label>
+
+                <input
+                  type="file"
+                  accept=".pdf,.png,.jpg,.jpeg"
+                  onChange={(e) => setCaseFile(e.target.files?.[0] ?? null)}
+                  className="w-full rounded-md border px-3 py-2 text-sm"
+                  style={{ borderColor: "var(--border)" }}
+                />
+
+                <p
+                  className="text-xs mt-1"
+                  style={{ color: "var(--muted)" }}
+                >
+                  PDF, PNG or JPG · up to 10MB
+                </p>
+                {caseCreated && (
+                  <div
+                    className="mt-2 rounded-md border px-4 py-3 text-sm"
+                    style={{
+                      borderColor: "var(--success)",
+                      background: "#F0FDF4",
+                      color: "var(--success)",
+                    }}
+                  >
+                    ✓ Case created successfully.
+                  </div>
+                )}
+              </div>
+
+            </div>
+
+            <div className="flex justify-end gap-3 mt-6">
+              <button
+                onClick={() => setNewCaseOpen(false)}
+                className="px-4 py-2 rounded-md border text-sm"
+                style={{ borderColor: "var(--border)" }}
+              >
+                Cancel
+              </button>
+
+              <button
+                disabled={caseCreated}
+                onClick={() => {
+                  if (!applicantName.trim() || !district.trim() || !caseFile) {
+                    alert(
+                      "Please enter the applicant name, district, and upload a case document."
+                    );
+                    return;
+                  }
+
+                  const newCase = {
+                    id: `case-${Date.now()}`,
+                    case_number: `GF-${Date.now().toString().slice(-4)}`,
+                    case_type: caseType.toLowerCase().replace(/ /g, "_"),
+                    applicant_name: applicantName,
+                    priority: "medium",
+                    status: "pending",
+                    created_at: new Date().toISOString(),
+                    sla_hours: 72,
+                  };
+
+                  const existingCases = JSON.parse(
+                    localStorage.getItem("govflow-cases") || "[]"
+                  );
+
+                  localStorage.setItem(
+                    "govflow-cases",
+                    JSON.stringify([...existingCases, newCase])
+                  );
+
+                  setCaseCreated(true);
+                }}
+                className="px-4 py-2 rounded-md text-sm font-medium text-white disabled:cursor-not-allowed"
+                style={{
+                  background: caseCreated ? "#94A3B8" : "#2563EB",
+                }}
+              >
+                {caseCreated ? "✓ Case Created" : "Create Case"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="mb-6">
         <DocumentUpload />

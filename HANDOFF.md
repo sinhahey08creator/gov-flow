@@ -77,6 +77,22 @@ validation (per original spec section 50's test plan).
     top of app/page.tsx.
 - **Tests (new this round):** lib/calculations/__tests__/calculations.test.ts
   — 18 tests, run with npm test (vitest)
+### UI Changes — Aug 11, 2026
+
+- Added a functional **+ New Case** flow in `app/page.tsx`.
+- Added validation for applicant name, district, and case document.
+- Added a success state after case creation.
+- The **Create Case** button becomes disabled after successful creation to prevent duplicate submissions.
+- Added newly created case data to browser `localStorage` as a temporary frontend implementation.
+- Updated `app/cases/page.tsx` to display the existing demo case along with newly created local cases.
+- Added a success confirmation message inside the New Case modal.
+
+### Current limitation of this UI change
+
+- New cases are currently stored in browser `localStorage`.
+- They are **not yet persisted to Supabase**.
+- This is a temporary frontend implementation until the live Supabase case creation/fetch flow is connected.
+
 
 ### Not done yet
 1. **Live Supabase project not created.** All the SQL/client/seed code
@@ -188,7 +204,7 @@ deterministic demo fallbacks — this is intentional, not a bug.
 ```
 app/
   page.tsx                        <- combined demo page (upload + case + workflow + officer + bottleneck + WHY + simulate)
-  cases/page.tsx                  <- cases list (single demo case for now)
+  app/cases/page.tsx  <- cases list (demo case + locally created cases)
   resources/page.tsx              <- officers list, sorted by utilization
   layout.tsx                      <- sidebar shell, system fonts
   globals.css

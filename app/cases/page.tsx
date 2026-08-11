@@ -1,13 +1,24 @@
+"use client";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { DEMO_CASE } from "@/lib/demo/seedData";
 import { calculateSLARisk } from "@/lib/calculations/slaRisk";
 
 // Only one demo case exists right now (GF-1024). Once Supabase is wired
 // with more than one seeded case, replace this with a real fetch from
 // lib/supabase/data.ts (mirror the getOfficers() pattern).
-const CASES = [DEMO_CASE];
+
 
 export default function CasesPage() {
+  const [cases, setCases] = useState([DEMO_CASE]);
+
+  useEffect(() => {
+    const savedCases = localStorage.getItem("govflow-cases");
+
+    if (savedCases) {
+      setCases([DEMO_CASE, ...JSON.parse(savedCases)]);
+    }
+  }, []);
   return (
     <main className="px-8 py-8 max-w-5xl mx-auto">
       <h1 className="text-xl font-semibold mb-6" style={{ color: "var(--navy)" }}>Cases</h1>
@@ -24,7 +35,7 @@ export default function CasesPage() {
             </tr>
           </thead>
           <tbody>
-            {CASES.map((c) => {
+            {cases.map((c) => {
               const risk = calculateSLARisk({
                 createdAt: c.created_at,
                 slaHours: c.sla_hours,
