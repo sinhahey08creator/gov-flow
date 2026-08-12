@@ -261,3 +261,69 @@ not reproduced in full here — ask him for it if anything is ambiguous
 about exact UI copy, demo script, or table schemas. He's juggling other
 projects in parallel (FlowTalent AI, Double AA Recruiter Workspace,
 GyaanSetu AI) so don't assume full-time bandwidth on this one.
+
+
+
+
+
+
+
+
+## 9. Authentication UI + Route Architecture Changes
+
+### Done
+
+- Created a separate authentication route group:
+  - `app/(auth)/login/page.tsx`
+  - `app/(auth)/signup/page.tsx`
+  - `app/(auth)/forgot-password/page.tsx`
+
+- Implemented the Signup page UI with:
+  - Username / Email
+  - Create Password
+  - Confirm Password
+  - Create Account button
+  - Login link
+
+- Added password visibility controls to Signup:
+  - Eye icon for Create Password
+  - Eye icon for Confirm Password
+  - Both fields have independent show/hide controls
+  - Uses `lucide-react`
+
+- Updated `app/layout.tsx`:
+  - Removed `Sidebar` from the root layout
+  - Root layout now provides only the common HTML/body structure
+  - This prevents the Sidebar from appearing on authentication pages
+
+- Created `app/(main)/layout.tsx`:
+  - Contains the existing `Sidebar`
+  - Wraps the main application pages
+
+- Moved existing main application pages into the `(main)` route group:
+  - `app/(main)/page.tsx`
+  - `app/(main)/cases/page.tsx`
+  - `app/(main)/resources/page.tsx`
+
+### Resulting Route Structure
+
+```text
+app/
+├── (auth)/
+│   ├── login/
+│   │   └── page.tsx
+│   ├── signup/
+│   │   └── page.tsx
+│   └── forgot-password/
+│       └── page.tsx
+│
+├── (main)/
+│   ├── layout.tsx
+│   ├── page.tsx
+│   ├── cases/
+│   │   └── page.tsx
+│   └── resources/
+│       └── page.tsx
+│
+├── layout.tsx
+└── globals.css

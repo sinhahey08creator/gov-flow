@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Sidebar from "@/components/Sidebar";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -7,13 +6,14 @@ export const metadata: Metadata = {
   description: "AI-Powered Government Workflow & Resource Optimization",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
     <html lang="en" className="h-full antialiased">
-      <body className="min-h-full flex">
-        <Sidebar />
-        <div className="flex-1">{children}</div>
-      </body>
+      <body className="min-h-full">{children}</body>
     </html>
   );
 }
