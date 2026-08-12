@@ -3,8 +3,11 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Eye, EyeOff } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export default function SignupPage() {
+  const router = useRouter();
+
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -16,12 +19,13 @@ export default function SignupPage() {
     username: "",
     password: "",
     confirmPassword: "",
+    general: "",
   });
 
   const [isLoading, setIsLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     setSuccessMessage("");
@@ -30,11 +34,14 @@ export default function SignupPage() {
       username: "",
       password: "",
       confirmPassword: "",
+      general: "",
     };
 
     // Username / Email validation
     if (!username.trim()) {
       newErrors.username = "Username / Email is required";
+    } else if (!username.includes("@")) {
+      newErrors.username = "Please enter a valid email address";
     }
 
     // Password validation
@@ -53,7 +60,7 @@ export default function SignupPage() {
 
     setErrors(newErrors);
 
-    // Stop if there are errors
+    // Stop if validation errors exist
     if (
       newErrors.username ||
       newErrors.password ||
@@ -62,14 +69,57 @@ export default function SignupPage() {
       return;
     }
 
-    // Start loading
-    setIsLoading(true);
+    try {
+      setIsLoading(true);
 
-    // Simulate account creation
-    setTimeout(() => {
+      const response = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: username.trim(),
+          password: password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setErrors((prev) => ({
+          ...prev,
+          general: data.error || "Unable to create account.",
+        }));
+
+        setIsLoading(false);
+        return;
+      }
+
+      setSuccessMessage(
+        data.message ||
+          "Account created successfully. Please check your email to verify your account."
+      );
+
       setIsLoading(false);
-      setSuccessMessage("Account created successfully!");
-    }, 1500);
+
+      // Clear password fields
+      setPassword("");
+      setConfirmPassword("");
+
+      // Go to login after a short delay
+      setTimeout(() => {
+        router.push("/login");
+      }, 2000);
+    } catch (error) {
+      console.error("Signup error:", error);
+
+      setErrors((prev) => ({
+        ...prev,
+        general: "Something went wrong. Please try again.",
+      }));
+
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -98,6 +148,24 @@ export default function SignupPage() {
           </p>
         </div>
 
+        {/* General Error */}
+        {errors.general && (
+          <div className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3">
+            <p className="text-sm text-red-600">
+              {errors.general}
+            </p>
+          </div>
+        )}
+
+        {/* Success Message */}
+        {successMessage && (
+          <div className="mb-5 rounded-lg border border-green-200 bg-green-50 px-4 py-3">
+            <p className="text-sm text-green-600">
+              {successMessage}
+            </p>
+          </div>
+        )}
+
         {/* Signup Form */}
         <form
           className="space-y-5"
@@ -116,7 +184,7 @@ export default function SignupPage() {
             <input
               id="username"
               name="username"
-              type="text"
+              type="email"
               value={username}
               onChange={(e) => {
                 setUsername(e.target.value);
@@ -125,10 +193,11 @@ export default function SignupPage() {
                   setErrors((prev) => ({
                     ...prev,
                     username: "",
+                    general: "",
                   }));
                 }
               }}
-              placeholder="Enter your username or email"
+              placeholder="Enter your email"
               disabled={isLoading}
               className={`w-full rounded-lg border px-4 py-3 text-sm outline-none focus:border-slate-500 ${
                 errors.username
@@ -173,21 +242,18 @@ export default function SignupPage() {
                       "Password must be at least 8 characters";
                   }
 
+                  let confirmError = "";
+
+                  if (confirmPassword && value !== confirmPassword) {
+                    confirmError = "Passwords do not match";
+                  }
+
                   setErrors((prev) => ({
                     ...prev,
                     password: passwordError,
+                    confirmPassword: confirmError,
+                    general: "",
                   }));
-
-                  if (confirmPassword) {
-                    setErrors((prev) => ({
-                      ...prev,
-                      password: passwordError,
-                      confirmPassword:
-                        value === confirmPassword
-                          ? ""
-                          : "Passwords do not match",
-                    }));
-                  }
                 }}
                 placeholder="Create your password"
                 disabled={isLoading}
@@ -200,9 +266,7 @@ export default function SignupPage() {
 
               <button
                 type="button"
-                onClick={() =>
-                  setShowPassword(!showPassword)
-                }
+                onClick={() => setShowPassword(!showPassword)}
                 disabled={isLoading}
                 className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-700"
                 aria-label={
@@ -219,13 +283,11 @@ export default function SignupPage() {
               </button>
             </div>
 
-            {password &&
-              password.length < 8 &&
-              !errors.password.includes("required") && (
-                <p className="mt-1 text-sm text-slate-500">
-                  Use at least 8 characters.
-                </p>
-              )}
+            {password && password.length < 8 && (
+              <p className="mt-1 text-sm text-slate-500">
+                Use at least 8 characters.
+              </p>
+            )}
 
             {errors.password && (
               <p className="mt-1 text-sm text-red-500">
@@ -271,6 +333,7 @@ export default function SignupPage() {
                   setErrors((prev) => ({
                     ...prev,
                     confirmPassword: confirmError,
+                    general: "",
                   }));
                 }}
                 placeholder="Confirm your password"
@@ -326,16 +389,11 @@ export default function SignupPage() {
             disabled={isLoading}
             className="w-full rounded-lg bg-slate-900 px-4 py-3 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-70"
           >
-            {isLoading ? "Creating Account..." : "Create Account"}
+            {isLoading
+              ? "Creating Account..."
+              : "Create Account"}
           </button>
         </form>
-
-        {/* Success Message */}
-        {successMessage && (
-          <p className="mt-4 text-center text-sm font-medium text-green-600">
-            {successMessage}
-          </p>
-        )}
 
         {/* Login Link */}
         <div className="mt-6 text-center text-sm text-slate-500">
