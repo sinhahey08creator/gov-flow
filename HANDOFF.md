@@ -320,3 +320,26 @@ app/
 │
 ├── layout.tsx
 └── globals.css
+
+## 10. Audit Log Implementation
+
+### Done
+
+- Added data storage layer in `lib/audit/data.ts`:
+  - `AuditLogItem` interface for tracking events
+  - `getAuditLogs()` to read logs from `localStorage`
+  - `logAction()` helper to automatically save new activity entries
+
+- Built Audit Log Page UI in `app/(main)/audit/page.tsx`:
+  - Clean layout displaying timestamp, action title, and description
+  - Real-time search filter and action category pills (`All`, `Case Created`, `Why Generated`, etc.)
+  - Live total event counter badge
+
+- Connected user interactions in `app/(main)/page.tsx`:
+  - Bound `logAction()` to **WHY?** button click (`why generated`)
+  - Bound `logAction()` to **Simulate Officer Unavailable** button click (`simulation run`)
+  - Bound `logAction()` to **+ New Case** form submit (`case created`)
+
+- Updated Sidebar navigation in `components/Sidebar.tsx`:
+  - Added `Audit Log` route link (`/audit`)
+  - Added active state highlight for `/audit` route
