@@ -77,22 +77,35 @@ validation (per original spec section 50's test plan).
     top of app/page.tsx.
 - **Tests (new this round):** lib/calculations/__tests__/calculations.test.ts
   — 18 tests, run with npm test (vitest)
-### UI Changes — Aug 11, 2026
+### UI Changes — Aug 12, 2026
 
 - Added a functional **+ New Case** flow in `app/page.tsx`.
-- Added validation for applicant name, district, and case document.
-- Added a success state after case creation.
+- Added a New Case modal with:
+  - Case Type selection
+  - Applicant Name
+  - District
+  - Case Document upload
+- Added validation for Applicant Name, District, and Case Document before case creation.
+- Added successful case creation feedback inside the modal.
 - The **Create Case** button becomes disabled after successful creation to prevent duplicate submissions.
 - Added newly created case data to browser `localStorage` as a temporary frontend implementation.
-- Updated `app/cases/page.tsx` to display the existing demo case along with newly created local cases.
-- Added a success confirmation message inside the New Case modal.
+- Updated `app/cases/page.tsx` to load locally created cases from `localStorage` along with the existing `DEMO_CASE`.
+- Added a **Remove** option for a selected case document so the user can replace the uploaded file.
+- Updated the case list to include a **Compensation Status** column based on the current workflow step.
+- Added automatic compensation status calculation:
+  - Not Started
+  - Pending
+  - Processing
+  - Approved
+  - Disbursed
+- Updated the file-upload UI so that after selecting a document, the selected filename is displayed instead of the initial file-selection prompt.
 
-### Current limitation of this UI change
+### Current limitation of these UI changes
 
 - New cases are currently stored in browser `localStorage`.
 - They are **not yet persisted to Supabase**.
-- This is a temporary frontend implementation until the live Supabase case creation/fetch flow is connected.
-
+- The uploaded document itself is not stored in a real storage bucket yet.
+- The current PDF text extraction remains a stub as described below.
 
 ### Not done yet
 1. **Live Supabase project not created.** All the SQL/client/seed code
