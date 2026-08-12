@@ -262,13 +262,6 @@ about exact UI copy, demo script, or table schemas. He's juggling other
 projects in parallel (FlowTalent AI, Double AA Recruiter Workspace,
 GyaanSetu AI) so don't assume full-time bandwidth on this one.
 
-
-
-
-
-
-
-
 ## 9. Authentication UI + Route Architecture Changes
 
 ### Done
