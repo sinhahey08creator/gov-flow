@@ -8,6 +8,7 @@ import { calculateSLARisk } from "@/lib/calculations/slaRisk";
 import { simulateOfficerUnavailable } from "@/lib/calculations/whatIf";
 import { WorkflowStep } from "@/types";
 import DocumentUpload from "@/components/DocumentUpload";
+import { logAction } from "@/lib/audit/data";
 
 const steps = WORKFLOW_TEMPLATES.land_compensation;
 const financeStepDef = steps[3]; // Finance Verification
@@ -56,6 +57,10 @@ export default function DashboardPage() {
   async function handleWhy() {
     setWhyOpen(true);
     setExplLoading(true);
+
+    // Auto-log the action
+    logAction("why generated", "AI generated causal explanation for SLA risk bottleneck");
+
     try {
       const res = await fetch("/api/explain-bottleneck", {
         method: "POST",
@@ -88,6 +93,9 @@ export default function DashboardPage() {
       caseData: DEMO_CASE,
     });
     setSimResult(result);
+
+    // Auto-log the action
+    logAction("simulation run", "Simulated Officer A unavailable");
   }
 
   return (
@@ -114,6 +122,7 @@ export default function DashboardPage() {
           </button>
         </div>
       </div>
+
       {newCaseOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl">
@@ -136,12 +145,10 @@ export default function DashboardPage() {
             </p>
 
             <div className="space-y-4">
-
               <div>
                 <label className="block text-sm font-medium mb-1">
                   Case Type
                 </label>
-
                 <select
                   value={caseType}
                   onChange={(e) => setCaseType(e.target.value)}
@@ -158,7 +165,6 @@ export default function DashboardPage() {
                 <label className="block text-sm font-medium mb-1">
                   Applicant Name
                 </label>
-
                 <input
                   type="text"
                   value={applicantName}
@@ -173,7 +179,6 @@ export default function DashboardPage() {
                 <label className="block text-sm font-medium mb-1">
                   District
                 </label>
-
                 <input
                   type="text"
                   value={district}
@@ -188,6 +193,13 @@ export default function DashboardPage() {
                 <label className="block text-sm font-medium mb-1">
                   Case Document
                 </label>
+                <input
+                  type="file"
+                  accept=".pdf,.png,.jpg,.jpeg"
+                  onChange={(e) => setCaseFile(e.target.files?.[0] ?? null)}
+                  className="w-full rounded-md border px-3 py-2 text-sm"
+                  style={{ borderColor: "var(--border)" }}
+                />
 
                 {!caseFile ? (
                   <label
@@ -242,7 +254,6 @@ export default function DashboardPage() {
                   </div>
                 )}
               </div>
-
             </div>
 
             <div className="flex justify-end gap-3 mt-6">
@@ -263,9 +274,11 @@ export default function DashboardPage() {
                     return;
                   }
 
+                  const caseNumber = `GF-${Date.now().toString().slice(-4)}`;
+
                   const newCase = {
                     id: `case-${Date.now()}`,
-                    case_number: `GF-${Date.now().toString().slice(-4)}`,
+                    case_number: caseNumber,
                     case_type: caseType.toLowerCase().replace(/ /g, "_"),
                     applicant_name: applicantName,
                     district,
@@ -284,6 +297,12 @@ export default function DashboardPage() {
                   localStorage.setItem(
                     "govflow-cases",
                     JSON.stringify([...existingCases, newCase])
+                  );
+
+                  // Auto-log the action
+                  logAction(
+                    "case created",
+                    `Created new case ${caseNumber} for applicant ${applicantName}`
                   );
 
                   setCaseCreated(true);
