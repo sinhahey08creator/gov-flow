@@ -45,6 +45,7 @@ export interface CaseRecord {
   summary: string;
   extracted_data: Record<string, unknown>;
   created_at: string;
+  compensation_status?: string; // "not_started" | "pending" | "disbursed" | "rejected"
 }
 
 export interface DocumentRecord {

@@ -36,6 +36,7 @@ export const DEMO_CASE: CaseRecord = {
   priority: "high",
   sla_hours: 72,
   status: "in_progress",
+  compensation_status: "pending",
   current_step: 4,
   summary:
     "Applicant is requesting compensation for land acquired for road construction. Finance verification remains pending.",
