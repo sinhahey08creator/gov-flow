@@ -35,7 +35,27 @@ export default function ResourcesPage() {
                   <td className="px-4 py-3">{o.current_load}/{o.max_load}</td>
                   <td className="px-4 py-3 font-medium" style={{ color: utilColor }}>{util}%</td>
                   <td className="px-4 py-3">{o.avg_processing_days}d</td>
-                  <td className="px-4 py-3">{o.available ? "✓" : "✗"}</td>
+                  <td className="px-4 py-3">
+                    <span
+                      className="inline-flex items-center justify-center w-[96px] h-[28px] rounded-md text-xs font-medium border"
+                      style={
+                        o.available
+                          ? {
+                            color: "var(--success)",
+                            borderColor: "var(--success)",
+                            backgroundColor:
+                              "color-mix(in srgb, var(--success) 8%, white)",
+                          }
+                          : {
+                            color: "var(--muted)",
+                            borderColor: "var(--border)",
+                            backgroundColor: "var(--border)",
+                          }
+                      }
+                    >
+                      {o.available ? "Available" : "Unavailable"}
+                    </span>
+                  </td>
                 </tr>
               );
             })}

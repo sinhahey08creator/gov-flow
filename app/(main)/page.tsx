@@ -189,13 +189,38 @@ export default function DashboardPage() {
                   Case Document
                 </label>
 
-                <input
-                  type="file"
-                  accept=".pdf,.png,.jpg,.jpeg"
-                  onChange={(e) => setCaseFile(e.target.files?.[0] ?? null)}
-                  className="w-full rounded-md border px-3 py-2 text-sm"
-                  style={{ borderColor: "var(--border)" }}
-                />
+                {!caseFile ? (
+                  <label
+                    className="flex items-center justify-center w-full rounded-md border px-3 py-2 text-sm cursor-pointer hover:bg-gray-50"
+                    style={{ borderColor: "var(--border)" }}
+                  >
+                    Choose File
+                    <input
+                      type="file"
+                      accept=".pdf,.png,.jpg,.jpeg"
+                      onChange={(e) => setCaseFile(e.target.files?.[0] ?? null)}
+                      className="hidden"
+                    />
+                  </label>
+                ) : (
+                  <div
+                    className="flex items-center justify-between w-full rounded-md border px-3 py-2 text-sm"
+                    style={{ borderColor: "var(--border)" }}
+                  >
+                    <span className="truncate">
+                      {caseFile.name}
+                    </span>
+
+                    <button
+                      type="button"
+                      onClick={() => setCaseFile(null)}
+                      className="ml-3 text-xs font-medium"
+                      style={{ color: "var(--critical)" }}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                )}
 
                 <p
                   className="text-xs mt-1"
@@ -203,6 +228,7 @@ export default function DashboardPage() {
                 >
                   PDF, PNG or JPG · up to 10MB
                 </p>
+
                 {caseCreated && (
                   <div
                     className="mt-2 rounded-md border px-4 py-3 text-sm"
@@ -229,7 +255,6 @@ export default function DashboardPage() {
               </button>
 
               <button
-                disabled={caseCreated}
                 onClick={() => {
                   if (!applicantName.trim() || !district.trim() || !caseFile) {
                     alert(
@@ -243,8 +268,11 @@ export default function DashboardPage() {
                     case_number: `GF-${Date.now().toString().slice(-4)}`,
                     case_type: caseType.toLowerCase().replace(/ /g, "_"),
                     applicant_name: applicantName,
+                    district,
                     priority: "medium",
                     status: "pending",
+                    compensation_status: "not_started",
+                    current_step: 1,
                     created_at: new Date().toISOString(),
                     sla_hours: 72,
                   };
@@ -260,12 +288,10 @@ export default function DashboardPage() {
 
                   setCaseCreated(true);
                 }}
-                className="px-4 py-2 rounded-md text-sm font-medium text-white disabled:cursor-not-allowed"
-                style={{
-                  background: caseCreated ? "#94A3B8" : "#2563EB",
-                }}
+                className="px-4 py-2 rounded-md text-sm font-medium text-white"
+                style={{ background: "#2563EB" }}
               >
-                {caseCreated ? "✓ Case Created" : "Create Case"}
+                Create Case
               </button>
             </div>
           </div>
