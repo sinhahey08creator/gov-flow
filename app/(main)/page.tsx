@@ -1,8 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { DEMO_CASE, SEED_OFFICERS, DEMO_FINANCE_QUEUE_LENGTH, DEMO_ASSIGNED_OFFICER_ID } from "@/lib/demo/seedData";
-import { WORKFLOW_TEMPLATES, validateDocuments } from "@/lib/workflow/templates";
+import {
+  DEMO_CASE,
+  SEED_OFFICERS,
+  DEMO_FINANCE_QUEUE_LENGTH,
+  DEMO_ASSIGNED_OFFICER_ID,
+} from "@/lib/demo/seedData";
+import {
+  WORKFLOW_TEMPLATES,
+  validateDocuments,
+} from "@/lib/workflow/templates";
 import { recommendOfficer } from "@/lib/calculations/officerScore";
 import { calculateSLARisk } from "@/lib/calculations/slaRisk";
 import { simulateOfficerUnavailable } from "@/lib/calculations/whatIf";
@@ -11,7 +19,8 @@ import DocumentUpload from "@/components/DocumentUpload";
 import { logAction } from "@/lib/audit/data";
 
 const steps = WORKFLOW_TEMPLATES.land_compensation;
-const financeStepDef = steps[3]; // Finance Verification
+const financeStepDef = steps[3];
+
 const financeStep: WorkflowStep = {
   id: "step-finance",
   case_id: DEMO_CASE.id,
@@ -26,9 +35,17 @@ const financeStep: WorkflowStep = {
   queue_length: DEMO_FINANCE_QUEUE_LENGTH,
 };
 
-const documentsDetected = (DEMO_CASE.extracted_data as { documents_detected: string[] }).documents_detected;
-const validation = validateDocuments(DEMO_CASE.case_type, documentsDetected);
+const documentsDetected = (
+  DEMO_CASE.extracted_data as { documents_detected: string[] }
+).documents_detected;
+
+const validation = validateDocuments(
+  DEMO_CASE.case_type,
+  documentsDetected
+);
+
 const recommendation = recommendOfficer(SEED_OFFICERS, financeStep);
+
 const slaRisk = calculateSLARisk({
   createdAt: DEMO_CASE.created_at,
   slaHours: DEMO_CASE.sla_hours,
@@ -45,14 +62,20 @@ function riskColor(level: string) {
 export default function DashboardPage() {
   const [whyOpen, setWhyOpen] = useState(false);
   const [newCaseOpen, setNewCaseOpen] = useState(false);
+
   const [caseType, setCaseType] = useState("Land Compensation");
   const [applicantName, setApplicantName] = useState("");
   const [district, setDistrict] = useState("");
   const [caseFile, setCaseFile] = useState<File | null>(null);
+
   const [caseCreated, setCaseCreated] = useState(false);
+
   const [explanation, setExplanation] = useState<string | null>(null);
   const [explLoading, setExplLoading] = useState(false);
-  const [simResult, setSimResult] = useState<ReturnType<typeof simulateOfficerUnavailable> | null>(null);
+
+  const [simResult, setSimResult] = useState<
+    ReturnType<typeof simulateOfficerUnavailable> | null
+  >(null);
 
   async function handleWhy() {
     setWhyOpen(true);
@@ -64,18 +87,22 @@ export default function DashboardPage() {
     try {
       const res = await fetch("/api/explain-bottleneck", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
           case_id: DEMO_CASE.case_number,
           department: financeStep.department,
           officer: recommendation?.officer.name ?? "Unknown",
           current_load: recommendation?.officer.current_load ?? 0,
           queue_length: financeStep.queue_length,
-          avg_processing_days: recommendation?.officer.avg_processing_days ?? 0,
+          avg_processing_days:
+            recommendation?.officer.avg_processing_days ?? 0,
           sla_risk: slaRisk.percentage,
           priority: DEMO_CASE.priority,
         }),
       });
+
       const data = await res.json();
       setExplanation(data.explanation);
     } catch {
@@ -92,6 +119,7 @@ export default function DashboardPage() {
       step: financeStep,
       caseData: DEMO_CASE,
     });
+
     setSimResult(result);
 
     // Auto-log the action
@@ -100,21 +128,40 @@ export default function DashboardPage() {
 
   return (
     <main className="min-h-screen px-8 py-8 max-w-6xl mx-auto">
+      {/* HEADER */}
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-semibold" style={{ color: "var(--navy)" }}>GovFlow AI</h1>
-          <p className="text-sm" style={{ color: "var(--muted)" }}>Intelligent Government Workflow Operations</p>
+          <h1
+            className="text-2xl font-semibold"
+            style={{ color: "var(--navy)" }}
+          >
+            GovFlow AI
+          </h1>
+
+          <p
+            className="text-sm"
+            style={{ color: "var(--muted)" }}
+          >
+            Intelligent Government Workflow Operations
+          </p>
         </div>
+
         <div className="flex items-center gap-3">
           <span
             className="text-xs font-medium px-3 py-1 rounded-full border"
-            style={{ borderColor: "var(--border)", color: "var(--muted)" }}
+            style={{
+              borderColor: "var(--border)",
+              color: "var(--muted)",
+            }}
           >
             DEMO MODE · Synthetic Data
           </span>
 
           <button
-            onClick={() => setNewCaseOpen(true)}
+            onClick={() => {
+              setNewCaseOpen(true);
+              setCaseCreated(false);
+            }}
             className="px-4 py-2 rounded-md text-sm font-medium text-white"
             style={{ background: "#2563EB" }}
           >
@@ -123,11 +170,16 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* NEW CASE MODAL */}
       {newCaseOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl">
+            {/* MODAL HEADER */}
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold" style={{ color: "var(--navy)" }}>
+              <h2
+                className="text-xl font-semibold"
+                style={{ color: "var(--navy)" }}
+              >
                 New Case
               </h2>
 
@@ -140,11 +192,15 @@ export default function DashboardPage() {
               </button>
             </div>
 
-            <p className="text-sm mb-6" style={{ color: "var(--muted)" }}>
+            <p
+              className="text-sm mb-6"
+              style={{ color: "var(--muted)" }}
+            >
               Upload a government case document to begin processing.
             </p>
 
             <div className="space-y-4">
+              {/* CASE TYPE */}
               <div>
                 <label className="block text-sm font-medium mb-1">
                   Case Type
@@ -161,6 +217,7 @@ export default function DashboardPage() {
                 </select>
               </div>
 
+              {/* APPLICANT NAME */}
               <div>
                 <label className="block text-sm font-medium mb-1">
                   Applicant Name
@@ -175,6 +232,7 @@ export default function DashboardPage() {
                 />
               </div>
 
+              {/* DISTRICT */}
               <div>
                 <label className="block text-sm font-medium mb-1">
                   District
@@ -189,6 +247,7 @@ export default function DashboardPage() {
                 />
               </div>
 
+              {/* CASE DOCUMENT */}
               <div>
                 <label className="block text-sm font-medium mb-1">
                   Case Document
@@ -207,10 +266,16 @@ export default function DashboardPage() {
                     style={{ borderColor: "var(--border)" }}
                   >
                     Choose File
+
                     <input
                       type="file"
                       accept=".pdf,.png,.jpg,.jpeg"
-                      onChange={(e) => setCaseFile(e.target.files?.[0] ?? null)}
+                      onChange={(e) => {
+                        setCaseFile(
+                          e.target.files?.[0] ?? null
+                        );
+                        setCaseCreated(false);
+                      }}
                       className="hidden"
                     />
                   </label>
@@ -225,7 +290,10 @@ export default function DashboardPage() {
 
                     <button
                       type="button"
-                      onClick={() => setCaseFile(null)}
+                      onClick={() => {
+                        setCaseFile(null);
+                        setCaseCreated(false);
+                      }}
                       className="ml-3 text-xs font-medium"
                       style={{ color: "var(--critical)" }}
                     >
@@ -241,6 +309,7 @@ export default function DashboardPage() {
                   PDF, PNG or JPG · up to 10MB
                 </p>
 
+                {/* SUCCESS MESSAGE */}
                 {caseCreated && (
                   <div
                     className="mt-2 rounded-md border px-4 py-3 text-sm"
@@ -256,6 +325,7 @@ export default function DashboardPage() {
               </div>
             </div>
 
+            {/* MODAL BUTTONS */}
             <div className="flex justify-end gap-3 mt-6">
               <button
                 onClick={() => setNewCaseOpen(false)}
@@ -265,9 +335,14 @@ export default function DashboardPage() {
                 Cancel
               </button>
 
+              {/* CREATE CASE — ALWAYS ENABLED */}
               <button
                 onClick={() => {
-                  if (!applicantName.trim() || !district.trim() || !caseFile) {
+                  if (
+                    !applicantName.trim() ||
+                    !district.trim() ||
+                    !caseFile
+                  ) {
                     alert(
                       "Please enter the applicant name, district, and upload a case document."
                     );
@@ -281,12 +356,19 @@ export default function DashboardPage() {
                     case_number: caseNumber,
                     case_type: caseType.toLowerCase().replace(/ /g, "_"),
                     applicant_name: applicantName,
+
                     district,
+
                     priority: "medium",
+
                     status: "pending",
+
                     compensation_status: "not_started",
+
                     current_step: 1,
+
                     created_at: new Date().toISOString(),
+
                     sla_hours: 72,
                   };
 
@@ -296,7 +378,10 @@ export default function DashboardPage() {
 
                   localStorage.setItem(
                     "govflow-cases",
-                    JSON.stringify([...existingCases, newCase])
+                    JSON.stringify([
+                      ...existingCases,
+                      newCase,
+                    ])
                   );
 
                   // Auto-log the action
@@ -317,64 +402,189 @@ export default function DashboardPage() {
         </div>
       )}
 
+      {/* DOCUMENT UPLOAD */}
       <div className="mb-6">
         <DocumentUpload />
       </div>
 
-      <div className="rounded-lg border bg-white p-6 mb-6" style={{ borderColor: "var(--border)" }}>
+      {/* CASE SUMMARY */}
+      <div
+        className="rounded-lg border bg-white p-6 mb-6"
+        style={{ borderColor: "var(--border)" }}
+      >
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-lg font-semibold">{DEMO_CASE.case_number} — Land Compensation</h2>
-            <p className="text-sm" style={{ color: "var(--muted)" }}>{DEMO_CASE.summary}</p>
+            <h2 className="text-lg font-semibold">
+              {DEMO_CASE.case_number} — Land Compensation
+            </h2>
+
+            <p
+              className="text-sm"
+              style={{ color: "var(--muted)" }}
+            >
+              {DEMO_CASE.summary}
+            </p>
           </div>
+
           <span
             className="text-sm font-semibold px-3 py-1 rounded"
-            style={{ background: `${riskColor(slaRisk.level)}1A`, color: riskColor(slaRisk.level) }}
+            style={{
+              background: `${riskColor(slaRisk.level)}1A`,
+              color: riskColor(slaRisk.level),
+            }}
           >
-            {slaRisk.level === "high" ? "🔴 AT RISK" : slaRisk.level === "medium" ? "🟠 WATCH" : "🟢 ON TRACK"}
+            {slaRisk.level === "high"
+              ? "🔴 AT RISK"
+              : slaRisk.level === "medium"
+                ? "🟠 WATCH"
+                : "🟢 ON TRACK"}
           </span>
         </div>
+
         <div className="grid grid-cols-4 gap-4 text-sm">
-          <div><span style={{ color: "var(--muted)" }}>Applicant</span><p className="font-medium">{DEMO_CASE.applicant_name}</p></div>
-          <div><span style={{ color: "var(--muted)" }}>District</span><p className="font-medium">{DEMO_CASE.district}</p></div>
-          <div><span style={{ color: "var(--muted)" }}>Priority</span><p className="font-medium capitalize">{DEMO_CASE.priority}</p></div>
-          <div><span style={{ color: "var(--muted)" }}>SLA</span><p className="font-medium">{DEMO_CASE.sla_hours}h</p></div>
+          <div>
+            <span style={{ color: "var(--muted)" }}>
+              Applicant
+            </span>
+
+            <p className="font-medium">
+              {DEMO_CASE.applicant_name}
+            </p>
+          </div>
+
+          <div>
+            <span style={{ color: "var(--muted)" }}>
+              District
+            </span>
+
+            <p className="font-medium">
+              {DEMO_CASE.district}
+            </p>
+          </div>
+
+          <div>
+            <span style={{ color: "var(--muted)" }}>
+              Priority
+            </span>
+
+            <p className="font-medium capitalize">
+              {DEMO_CASE.priority}
+            </p>
+          </div>
+
+          <div>
+            <span style={{ color: "var(--muted)" }}>
+              SLA
+            </span>
+
+            <p className="font-medium">
+              {DEMO_CASE.sla_hours}h
+            </p>
+          </div>
         </div>
       </div>
 
+      {/* DOCUMENT CHECK + WORKFLOW */}
       <div className="grid grid-cols-2 gap-6 mb-6">
-        <div className="rounded-lg border bg-white p-6" style={{ borderColor: "var(--border)" }}>
-          <h3 className="font-semibold mb-3 text-sm uppercase tracking-wide" style={{ color: "var(--muted)" }}>Document Check</h3>
+        {/* DOCUMENT CHECK */}
+        <div
+          className="rounded-lg border bg-white p-6"
+          style={{ borderColor: "var(--border)" }}
+        >
+          <h3
+            className="font-semibold mb-3 text-sm uppercase tracking-wide"
+            style={{ color: "var(--muted)" }}
+          >
+            Document Check
+          </h3>
+
           <ul className="space-y-2 text-sm">
             {validation.required.map((doc) => {
-              const present = validation.present.includes(doc);
+              const present =
+                validation.present.includes(doc);
+
               return (
-                <li key={doc} className="flex justify-between">
-                  <span className="capitalize">{doc.replace(/_/g, " ")}</span>
-                  <span style={{ color: present ? "var(--success)" : "var(--critical)" }}>{present ? "✓" : "✗ Missing"}</span>
+                <li
+                  key={doc}
+                  className="flex justify-between"
+                >
+                  <span className="capitalize">
+                    {doc.replace(/_/g, " ")}
+                  </span>
+
+                  <span
+                    style={{
+                      color: present
+                        ? "var(--success)"
+                        : "var(--critical)",
+                    }}
+                  >
+                    {present ? "✓" : "✗ Missing"}
+                  </span>
                 </li>
               );
             })}
           </ul>
+
           {!validation.complete && (
-            <button className="mt-4 text-sm px-3 py-1.5 rounded border" style={{ borderColor: "var(--border)", color: "var(--navy)" }}>
+            <button
+              className="mt-4 text-sm px-3 py-1.5 rounded border"
+              style={{
+                borderColor: "var(--border)",
+                color: "var(--navy)",
+              }}
+            >
               Request Missing Document
             </button>
           )}
         </div>
 
-        <div className="rounded-lg border bg-white p-6" style={{ borderColor: "var(--border)" }}>
-          <h3 className="font-semibold mb-3 text-sm uppercase tracking-wide" style={{ color: "var(--muted)" }}>Workflow</h3>
+        {/* WORKFLOW */}
+        <div
+          className="rounded-lg border bg-white p-6"
+          style={{ borderColor: "var(--border)" }}
+        >
+          <h3
+            className="font-semibold mb-3 text-sm uppercase tracking-wide"
+            style={{ color: "var(--muted)" }}
+          >
+            Workflow
+          </h3>
+
           <ol className="space-y-2 text-sm">
             {steps.map((s, i) => {
               const stepNum = i + 1;
+
               const isBlocked = stepNum === 4;
               const isDone = stepNum < 4;
+
               return (
-                <li key={s.name} className="flex items-center gap-2">
-                  <span>{isDone ? "✓" : isBlocked ? "🔴" : "○"}</span>
-                  <span className={isBlocked ? "font-medium" : ""}>{s.name}</span>
-                  <span className="ml-auto text-xs" style={{ color: "var(--muted)" }}>{s.department}</span>
+                <li
+                  key={s.name}
+                  className="flex items-center gap-2"
+                >
+                  <span>
+                    {isDone
+                      ? "✓"
+                      : isBlocked
+                        ? "🔴"
+                        : "○"}
+                  </span>
+
+                  <span
+                    className={
+                      isBlocked ? "font-medium" : ""
+                    }
+                  >
+                    {s.name}
+                  </span>
+
+                  <span
+                    className="ml-auto text-xs"
+                    style={{ color: "var(--muted)" }}
+                  >
+                    {s.department}
+                  </span>
                 </li>
               );
             })}
@@ -382,58 +592,173 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="rounded-lg border bg-white p-6 mb-6" style={{ borderColor: "var(--border)" }}>
-        <h3 className="font-semibold mb-3 text-sm uppercase tracking-wide" style={{ color: "var(--muted)" }}>Recommended Officer</h3>
+      {/* RECOMMENDED OFFICER */}
+      <div
+        className="rounded-lg border bg-white p-6 mb-6"
+        style={{ borderColor: "var(--border)" }}
+      >
+        <h3
+          className="font-semibold mb-3 text-sm uppercase tracking-wide"
+          style={{ color: "var(--muted)" }}
+        >
+          Recommended Officer
+        </h3>
+
         {recommendation && (
           <>
-            <p className="text-lg font-semibold">{recommendation.officer.name} — Score {recommendation.score}</p>
+            <p className="text-lg font-semibold">
+              {recommendation.officer.name} — Score{" "}
+              {recommendation.score}
+            </p>
+
             <div className="grid grid-cols-5 gap-3 mt-3 text-sm">
-              <div>Authority Match<p className="font-medium">+{recommendation.breakdown.authority}</p></div>
-              <div>Skill Match<p className="font-medium">+{recommendation.breakdown.skill}</p></div>
-              <div>Availability<p className="font-medium">+{recommendation.breakdown.availability}</p></div>
-              <div>Workload Penalty<p className="font-medium">-{recommendation.breakdown.workloadPenalty}</p></div>
-              <div>Processing Penalty<p className="font-medium">-{recommendation.breakdown.processingPenalty}</p></div>
+              <div>
+                Authority Match
+                <p className="font-medium">
+                  +{recommendation.breakdown.authority}
+                </p>
+              </div>
+
+              <div>
+                Skill Match
+                <p className="font-medium">
+                  +{recommendation.breakdown.skill}
+                </p>
+              </div>
+
+              <div>
+                Availability
+                <p className="font-medium">
+                  +{recommendation.breakdown.availability}
+                </p>
+              </div>
+
+              <div>
+                Workload Penalty
+                <p className="font-medium">
+                  -{recommendation.breakdown.workloadPenalty}
+                </p>
+              </div>
+
+              <div>
+                Processing Penalty
+                <p className="font-medium">
+                  -{recommendation.breakdown.processingPenalty}
+                </p>
+              </div>
             </div>
           </>
         )}
       </div>
 
-      <div className="rounded-lg border bg-white p-6 mb-6" style={{ borderColor: "var(--border)" }}>
+      {/* SLA BREACH RISK */}
+      <div
+        className="rounded-lg border bg-white p-6 mb-6"
+        style={{ borderColor: "var(--border)" }}
+      >
         <div className="flex items-center justify-between mb-3">
-          <h3 className="font-semibold text-sm uppercase tracking-wide" style={{ color: "var(--muted)" }}>SLA Breach Risk</h3>
-          <span className="text-2xl font-bold" style={{ color: riskColor(slaRisk.level) }}>{slaRisk.percentage}%</span>
+          <h3
+            className="font-semibold text-sm uppercase tracking-wide"
+            style={{ color: "var(--muted)" }}
+          >
+            SLA Breach Risk
+          </h3>
+
+          <span
+            className="text-2xl font-bold"
+            style={{
+              color: riskColor(slaRisk.level),
+            }}
+          >
+            {slaRisk.percentage}%
+          </span>
         </div>
-        <p className="text-sm mb-4" style={{ color: "var(--muted)" }}>
-          Finance queue: {financeStep.queue_length} files · Assigned: Officer A (42/50 load)
+
+        <p
+          className="text-sm mb-4"
+          style={{ color: "var(--muted)" }}
+        >
+          Finance queue: {financeStep.queue_length} files ·
+          Assigned: Officer A (42/50 load)
         </p>
+
         <div className="flex gap-3">
-          <button onClick={handleWhy} className="px-4 py-2 rounded text-sm font-medium text-white" style={{ background: "var(--navy)" }}>
+          <button
+            onClick={handleWhy}
+            className="px-4 py-2 rounded text-sm font-medium text-white"
+            style={{ background: "var(--navy)" }}
+          >
             WHY?
           </button>
-          <button onClick={handleSimulate} className="px-4 py-2 rounded text-sm font-medium border" style={{ borderColor: "var(--border)" }}>
+
+          <button
+            onClick={handleSimulate}
+            className="px-4 py-2 rounded text-sm font-medium border"
+            style={{ borderColor: "var(--border)" }}
+          >
             Simulate Officer Unavailable
           </button>
         </div>
 
+        {/* WHY RESULT */}
         {whyOpen && (
-          <div className="mt-4 p-4 rounded border text-sm" style={{ borderColor: "var(--border)", background: "var(--bg)" }}>
-            {explLoading ? "Generating explanation..." : explanation}
+          <div
+            className="mt-4 p-4 rounded border text-sm"
+            style={{
+              borderColor: "var(--border)",
+              background: "var(--bg)",
+            }}
+          >
+            {explLoading
+              ? "Generating explanation..."
+              : explanation}
           </div>
         )}
 
+        {/* SIMULATION RESULT */}
         {simResult && (
-          <div className="mt-4 p-4 rounded border text-sm grid grid-cols-2 gap-6" style={{ borderColor: "var(--border)" }}>
+          <div
+            className="mt-4 p-4 rounded border text-sm grid grid-cols-2 gap-6"
+            style={{ borderColor: "var(--border)" }}
+          >
             <div>
-              <p className="font-semibold mb-1">Current</p>
-              <p>Officer: {simResult.before?.officer.name}</p>
-              <p>Score: {simResult.before?.score}</p>
-              <p>SLA Risk: {simResult.slaRiskBefore.percentage}%</p>
+              <p className="font-semibold mb-1">
+                Current
+              </p>
+
+              <p>
+                Officer:{" "}
+                {simResult.before?.officer.name}
+              </p>
+
+              <p>
+                Score: {simResult.before?.score}
+              </p>
+
+              <p>
+                SLA Risk:{" "}
+                {simResult.slaRiskBefore.percentage}%
+              </p>
             </div>
+
             <div>
-              <p className="font-semibold mb-1">If Officer A Unavailable</p>
-              <p>Officer: {simResult.after?.officer.name}</p>
-              <p>Score: {simResult.after?.score}</p>
-              <p>SLA Risk: {simResult.slaRiskAfter.percentage}%</p>
+              <p className="font-semibold mb-1">
+                If Officer A Unavailable
+              </p>
+
+              <p>
+                Officer:{" "}
+                {simResult.after?.officer.name}
+              </p>
+
+              <p>
+                Score: {simResult.after?.score}
+              </p>
+
+              <p>
+                SLA Risk:{" "}
+                {simResult.slaRiskAfter.percentage}%
+              </p>
             </div>
           </div>
         )}
