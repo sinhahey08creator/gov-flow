@@ -3,6 +3,8 @@ export type CaseType =
   | "birth_certificate_correction"
   | "citizen_grievance";
 
+export type ExtractedCaseType = CaseType | "unsupported";
+
 export type Priority = "low" | "medium" | "high";
 export type RiskLevel = "low" | "medium" | "high";
 
