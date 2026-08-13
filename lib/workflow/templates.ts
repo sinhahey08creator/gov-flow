@@ -44,13 +44,44 @@ export const SLA_HOURS: Record<CaseType, number> = {
   citizen_grievance: 48,
 };
 
-export function validateDocuments(caseType: CaseType, documentsDetected: string[]) {
-  const required = REQUIRED_DOCUMENTS[caseType];
+export function validateDocuments(caseType: CaseType, documentsDetected: string[] = []) {
+  const required = REQUIRED_DOCUMENTS[caseType] || [];
+  const present = required.filter((d) => documentsDetected.includes(d));
   const missing = required.filter((d) => !documentsDetected.includes(d));
+
   return {
     required,
-    present: required.filter((d) => documentsDetected.includes(d)),
+    present,
     missing,
     complete: missing.length === 0,
   };
+}
+
+// Global case state for simulator updates
+export interface DemoCase {
+  id: string;
+  case_number: string;
+  title: string;
+  assigned_officer: string;
+  assigned_officer_id: string;
+  status: string;
+}
+
+export let DEMO_CASES: DemoCase[] = [
+  {
+    id: "c-101",
+    case_number: "GF-1024",
+    title: "Land Compensation Claim",
+    assigned_officer: "Officer B (Finance Verification)",
+    assigned_officer_id: "off-b",
+    status: "in_progress",
+  },
+];
+
+export function updateCaseOfficer(caseNumber: string, newOfficerName: string, newOfficerId: string) {
+  DEMO_CASES = DEMO_CASES.map((c) =>
+    c.case_number === caseNumber
+      ? { ...c, assigned_officer: newOfficerName, assigned_officer_id: newOfficerId }
+      : c
+  );
 }
