@@ -113,7 +113,7 @@ export default function DashboardPage() {
         activeCase &&
         activeCase.assigned_officer &&
         activeCase.assigned_officer !==
-          "Officer B (Finance Verification)"
+        "Officer B (Finance Verification)"
       ) {
         setReassignedOfficerName(
           activeCase.assigned_officer
@@ -142,19 +142,19 @@ export default function DashboardPage() {
   const reassignedRecommendation =
     reassignedOfficerObj
       ? recommendOfficer(
-          SEED_OFFICERS.map((officer) =>
-            officer.id === reassignedOfficerObj.id
-              ? {
-                  ...officer,
-                  current_load: Math.max(
-                    1,
-                    officer.current_load - 2
-                  ),
-                }
-              : officer
-          ),
-          financeStep
-        )
+        SEED_OFFICERS.map((officer) =>
+          officer.id === reassignedOfficerObj.id
+            ? {
+              ...officer,
+              current_load: Math.max(
+                1,
+                officer.current_load - 2
+              ),
+            }
+            : officer
+        ),
+        financeStep
+      )
       : null;
 
   /*
@@ -201,7 +201,7 @@ export default function DashboardPage() {
 
       setExplanation(
         data.explanation ??
-          "No explanation was returned."
+        "No explanation was returned."
       );
     } catch {
       setExplanation(
@@ -336,13 +336,11 @@ export default function DashboardPage() {
           </span>
 
           <button
-            onClick={() => {
-              setNewCaseOpen(true);
-              setCaseCreated(false);
-            }}
-            className="px-4 py-2 rounded-md text-sm font-medium text-white"
+            className="gf-button"
             style={{
-              background: "#2563EB",
+              color: "white",
+              background: "var(--navy)",
+              borderColor: "var(--navy)",
             }}
           >
             + New Case
@@ -489,7 +487,7 @@ export default function DashboardPage() {
                       onChange={(e) => {
                         setCaseFile(
                           e.target.files?.[0] ??
-                            null
+                          null
                         );
                         setCaseCreated(false);
                       }}
@@ -664,520 +662,908 @@ export default function DashboardPage() {
         </div>
       </div>
 
+
       {/* DOCUMENT CHECK + WORKFLOW */}
-      <div className="grid grid-cols-2 gap-6 mb-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
         {/* DOCUMENT CHECK */}
-        <div
-          className="rounded-lg border bg-white p-6"
-          style={{ borderColor: "var(--border)" }}
-        >
-          <h3
-            className="font-semibold mb-3 text-sm uppercase tracking-wide"
-            style={{ color: "var(--muted)" }}
+        <div className="gf-card overflow-hidden">
+          <div
+            className="px-6 py-4 border-b"
+            style={{ borderColor: "var(--border)" }}
           >
-            Document Check
-          </h3>
-
-          <ul className="space-y-2 text-sm">
-            {validation.required.map((doc) => {
-              const present =
-                validation.present.includes(doc);
-
-              return (
-                <li
-                  key={doc}
-                  className="flex justify-between"
+            <div className="flex items-center justify-between">
+              <div>
+                <h3
+                  className="text-sm font-semibold"
+                  style={{ color: "var(--navy)" }}
                 >
-                  <span className="capitalize">
-                    {doc.replace(/_/g, " ")}
-                  </span>
+                  Document Check
+                </h3>
 
-                  <span
-                    style={{
-                      color: present
-                        ? "var(--success)"
-                        : "var(--critical)",
-                    }}
+                <p
+                  className="text-xs mt-1"
+                  style={{ color: "var(--muted)" }}
+                >
+                  Required documents detected for this case.
+                </p>
+              </div>
+
+              <span
+                className={
+                  validation.complete
+                    ? "gf-status gf-status-success"
+                    : "gf-status gf-status-critical"
+                }
+              >
+                {validation.complete ? "Complete" : "Action Required"}
+              </span>
+            </div>
+          </div>
+
+          <div className="p-6">
+            <ul className="space-y-3">
+              {validation.required.map((doc) => {
+                const present = validation.present.includes(doc);
+
+                return (
+                  <li
+                    key={doc}
+                    className="flex items-center justify-between gap-4"
                   >
-                    {present ? "✓" : "✗ Missing"}
-                  </span>
-                </li>
-              );
-            })}
-          </ul>
+                    <div className="flex items-center gap-3 min-w-0">
+                      <span
+                        className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold shrink-0"
+                        style={{
+                          color: present
+                            ? "var(--success)"
+                            : "var(--critical)",
+                          background: present
+                            ? "color-mix(in srgb, var(--success) 10%, white)"
+                            : "color-mix(in srgb, var(--critical) 10%, white)",
+                        }}
+                      >
+                        {present ? "✓" : "!"}
+                      </span>
 
-          {!validation.complete && (
-            <button
-              className="mt-4 text-sm px-3 py-1.5 rounded border"
-              style={{
-                borderColor: "var(--border)",
-                color: "var(--navy)",
-              }}
-            >
-              Request Missing Document
-            </button>
-          )}
+                      <span
+                        className="text-sm capitalize"
+                        style={{ color: "var(--text)" }}
+                      >
+                        {doc.replace(/_/g, " ")}
+                      </span>
+                    </div>
+
+                    <span
+                      className="text-xs font-medium shrink-0"
+                      style={{
+                        color: present
+                          ? "var(--success)"
+                          : "var(--critical)",
+                      }}
+                    >
+                      {present ? "Present" : "Missing"}
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
+
+            {!validation.complete && (
+              <div
+                className="mt-5 p-4 rounded-lg border"
+                style={{
+                  borderColor: "color-mix(in srgb, var(--critical) 25%, var(--border))",
+                  background:
+                    "color-mix(in srgb, var(--critical) 5%, white)",
+                }}
+              >
+                <div className="flex items-start gap-3">
+                  <span
+                    className="text-sm font-semibold"
+                    style={{ color: "var(--critical)" }}
+                  >
+                    !
+                  </span>
+
+                  <div className="flex-1">
+                    <p
+                      className="text-sm font-semibold"
+                      style={{ color: "var(--navy)" }}
+                    >
+                      Missing document detected
+                    </p>
+
+                    <p
+                      className="text-xs mt-1"
+                      style={{ color: "var(--muted)" }}
+                    >
+                      One or more required documents must be provided before
+                      the case can continue.
+                    </p>
+
+                    <button
+                      className="gf-button mt-3"
+                      style={{
+                        color: "var(--navy)",
+                        background: "white",
+                        borderColor: "var(--border)",
+                      }}
+                    >
+                      Request Missing Document
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* WORKFLOW */}
-        <div
-          className="rounded-lg border bg-white p-6"
-          style={{ borderColor: "var(--border)" }}
-        >
-          <h3
-            className="font-semibold mb-3 text-sm uppercase tracking-wide"
-            style={{ color: "var(--muted)" }}
+        <div className="gf-card overflow-hidden">
+          <div
+            className="px-6 py-4 border-b"
+            style={{ borderColor: "var(--border)" }}
           >
-            Workflow
-          </h3>
+            <div>
+              <h3
+                className="text-sm font-semibold"
+                style={{ color: "var(--navy)" }}
+              >
+                Workflow
+              </h3>
 
-          <ol className="space-y-2 text-sm">
-            {steps.map((s, i) => {
-              const stepNum = i + 1;
+              <p
+                className="text-xs mt-1"
+                style={{ color: "var(--muted)" }}
+              >
+                Current progress and workflow bottleneck.
+              </p>
+            </div>
+          </div>
 
-              const isBlocked = stepNum === 4;
-              const isDone = stepNum < 4;
+          <div className="p-6">
+            <ol className="relative space-y-0">
+              {steps.map((s, i) => {
+                const stepNum = i + 1;
 
-              return (
-                <li
-                  key={s.name}
-                  className="flex items-center gap-2"
-                >
-                  <span>
-                    {isDone
-                      ? "✓"
-                      : isBlocked
-                        ? "🔴"
-                        : "○"}
-                  </span>
+                const isBlocked = stepNum === 4;
+                const isDone = stepNum < 4;
+                const isLast = i === steps.length - 1;
 
-                  <span
-                    className={
-                      isBlocked ? "font-medium" : ""
-                    }
+                return (
+                  <li
+                    key={s.name}
+                    className="relative flex gap-4 min-h-[58px]"
                   >
-                    {s.name}
-                  </span>
+                    {/* CONNECTOR */}
+                    {!isLast && (
+                      <span
+                        className="absolute left-[11px] top-6 w-px h-[58px]"
+                        style={{ background: "var(--border)" }}
+                      />
+                    )}
 
-                  <span
-                    className="ml-auto text-xs"
-                    style={{ color: "var(--muted)" }}
-                  >
-                    {s.department}
-                  </span>
-                </li>
-              );
-            })}
-          </ol>
+                    {/* STEP INDICATOR */}
+                    <span
+                      className="relative z-10 w-6 h-6 rounded-full flex items-center justify-center text-xs font-semibold shrink-0"
+                      style={{
+                        background: isBlocked
+                          ? "color-mix(in srgb, var(--critical) 12%, white)"
+                          : isDone
+                            ? "color-mix(in srgb, var(--success) 12%, white)"
+                            : "var(--bg)",
+                        color: isBlocked
+                          ? "var(--critical)"
+                          : isDone
+                            ? "var(--success)"
+                            : "var(--muted)",
+                        border: `1px solid ${isBlocked
+                          ? "color-mix(in srgb, var(--critical) 35%, var(--border))"
+                          : isDone
+                            ? "color-mix(in srgb, var(--success) 35%, var(--border))"
+                            : "var(--border)"
+                          }`,
+                      }}
+                    >
+                      {isDone ? "✓" : isBlocked ? "!" : stepNum}
+                    </span>
+
+                    {/* STEP DETAILS */}
+                    <div className="flex-1 pb-5">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p
+                            className={`text-sm ${isBlocked ? "font-semibold" : "font-medium"
+                              }`}
+                            style={{
+                              color: isBlocked
+                                ? "var(--critical)"
+                                : "var(--text)",
+                            }}
+                          >
+                            {s.name}
+                          </p>
+
+                          <p
+                            className="text-xs mt-0.5"
+                            style={{ color: "var(--muted)" }}
+                          >
+                            {s.department}
+                          </p>
+                        </div>
+
+                        {isBlocked && (
+                          <span className="gf-status gf-status-critical">
+                            Bottleneck
+                          </span>
+                        )}
+
+                        {isDone && (
+                          <span
+                            className="text-xs font-medium"
+                            style={{ color: "var(--success)" }}
+                          >
+                            Complete
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </li>
+                );
+              })}
+            </ol>
+          </div>
         </div>
       </div>
 
       {/* RECOMMENDED OFFICER */}
-      <div
-        className="rounded-lg border bg-white p-6"
-        style={{
-          borderColor:
-            "var(--border, #E2E8F0)",
-        }}
-      >
-        <div className="flex items-center justify-between mb-4">
-          <h3
-            className="font-semibold text-sm uppercase tracking-wide"
-            style={{
-              color:
-                "var(--muted, #64748B)",
-            }}
-          >
-            Recommended Officer Allocation
-          </h3>
+      <div className="gf-card overflow-hidden mb-6">
+        <div
+          className="px-6 py-4 border-b"
+          style={{ borderColor: "var(--border)" }}
+        >
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <h3
+                className="text-sm font-semibold"
+                style={{ color: "var(--navy)" }}
+              >
+                AI Officer Recommendation
+              </h3>
 
-          {reassignedOfficerName && (
-            <span className="text-xs font-semibold px-2.5 py-1 rounded bg-blue-50 text-blue-700 border border-blue-200">
-              ⚡ What-If Reassignment Active
-            </span>
-          )}
+              <p
+                className="text-xs mt-1"
+                style={{ color: "var(--muted)" }}
+              >
+                Recommended resource based on authority, skills, availability,
+                and workload.
+              </p>
+            </div>
+
+            {reassignedOfficerName && (
+              <span className="gf-status gf-status-success">
+                <span
+                  className="w-1.5 h-1.5 rounded-full"
+                  style={{ background: "var(--success)" }}
+                />
+                What-If Reassignment Active
+              </span>
+            )}
+          </div>
         </div>
 
-        {!reassignedOfficerName ? (
-          recommendation && (
+        <div className="p-6">
+          {!reassignedOfficerName ? (
+            recommendation && (
+              <div>
+                {/* MAIN RECOMMENDATION */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div>
+                    <p
+                      className="text-xl font-semibold"
+                      style={{ color: "var(--navy)" }}
+                    >
+                      {recommendation.officer.name}
+                    </p>
+
+                    <p
+                      className="text-xs mt-1"
+                      style={{ color: "var(--muted)" }}
+                    >
+                      Best match for the current workflow requirement
+                    </p>
+                  </div>
+
+                  <div
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg border"
+                    style={{
+                      borderColor: "var(--border)",
+                      background: "var(--bg)",
+                    }}
+                  >
+                    <span
+                      className="text-xs"
+                      style={{ color: "var(--muted)" }}
+                    >
+                      Match Score
+                    </span>
+
+                    <span
+                      className="text-xl font-bold"
+                      style={{ color: "var(--navy)" }}
+                    >
+                      {recommendation.score}
+                    </span>
+                  </div>
+                </div>
+
+                {/* SCORE BREAKDOWN */}
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mt-6">
+                  <div className="p-3 rounded-lg border" style={{ borderColor: "var(--border)" }}>
+                    <span className="text-xs" style={{ color: "var(--muted)" }}>
+                      Authority Match
+                    </span>
+
+                    <p
+                      className="text-sm font-semibold mt-1"
+                      style={{ color: "var(--success)" }}
+                    >
+                      +{recommendation.breakdown.authority}
+                    </p>
+                  </div>
+
+                  <div className="p-3 rounded-lg border" style={{ borderColor: "var(--border)" }}>
+                    <span className="text-xs" style={{ color: "var(--muted)" }}>
+                      Skill Match
+                    </span>
+
+                    <p
+                      className="text-sm font-semibold mt-1"
+                      style={{ color: "var(--success)" }}
+                    >
+                      +{recommendation.breakdown.skill}
+                    </p>
+                  </div>
+
+                  <div className="p-3 rounded-lg border" style={{ borderColor: "var(--border)" }}>
+                    <span className="text-xs" style={{ color: "var(--muted)" }}>
+                      Availability
+                    </span>
+
+                    <p
+                      className="text-sm font-semibold mt-1"
+                      style={{ color: "var(--success)" }}
+                    >
+                      +{recommendation.breakdown.availability}
+                    </p>
+                  </div>
+
+                  <div className="p-3 rounded-lg border" style={{ borderColor: "var(--border)" }}>
+                    <span className="text-xs" style={{ color: "var(--muted)" }}>
+                      Workload Penalty
+                    </span>
+
+                    <p
+                      className="text-sm font-semibold mt-1"
+                      style={{ color: "var(--warning)" }}
+                    >
+                      -{recommendation.breakdown.workloadPenalty}
+                    </p>
+                  </div>
+
+                  <div className="p-3 rounded-lg border" style={{ borderColor: "var(--border)" }}>
+                    <span className="text-xs" style={{ color: "var(--muted)" }}>
+                      Processing Penalty
+                    </span>
+
+                    <p
+                      className="text-sm font-semibold mt-1"
+                      style={{ color: "var(--warning)" }}
+                    >
+                      -{recommendation.breakdown.processingPenalty}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )
+          ) : (
+            /* WHAT-IF REASSIGNMENT */
             <div>
-              <p className="text-lg font-bold text-slate-900">
-                {recommendation.officer.name}
-                {" "}— Score{" "}
-                {recommendation.score}
-              </p>
+              <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto_1fr] gap-4 items-center">
+                {/* ORIGINAL */}
+                <div
+                  className="rounded-lg border p-4"
+                  style={{
+                    borderColor: "var(--border)",
+                    background: "var(--bg)",
+                  }}
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <span
+                      className="text-xs font-semibold uppercase tracking-wide"
+                      style={{ color: "var(--muted)" }}
+                    >
+                      Initial Recommendation
+                    </span>
 
-              <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mt-4 text-xs">
-                <div className="p-2.5 rounded bg-slate-50 border border-slate-100">
-                  <span className="text-slate-500">
-                    Authority Match
-                  </span>
+                    <span className="gf-status">
+                      Replaced
+                    </span>
+                  </div>
 
-                  <p className="font-bold text-slate-800 text-sm mt-0.5">
-                    +
-                    {
-                      recommendation
-                        .breakdown
-                        .authority
-                    }
-                  </p>
+                  {recommendation && (
+                    <>
+                      <p
+                        className="text-lg font-semibold"
+                        style={{ color: "var(--navy)" }}
+                      >
+                        {recommendation.officer.name}
+                      </p>
+
+                      <p
+                        className="text-xs mt-1"
+                        style={{ color: "var(--muted)" }}
+                      >
+                        Match Score: {recommendation.score}
+                      </p>
+
+                      <div className="grid grid-cols-3 gap-3 mt-4">
+                        <div>
+                          <span
+                            className="text-xs"
+                            style={{ color: "var(--muted)" }}
+                          >
+                            Authority
+                          </span>
+
+                          <p className="text-sm font-semibold">
+                            +{recommendation.breakdown.authority}
+                          </p>
+                        </div>
+
+                        <div>
+                          <span
+                            className="text-xs"
+                            style={{ color: "var(--muted)" }}
+                          >
+                            Skill
+                          </span>
+
+                          <p className="text-sm font-semibold">
+                            +{recommendation.breakdown.skill}
+                          </p>
+                        </div>
+
+                        <div>
+                          <span
+                            className="text-xs"
+                            style={{ color: "var(--muted)" }}
+                          >
+                            Workload
+                          </span>
+
+                          <p className="text-sm font-semibold">
+                            -{recommendation.breakdown.workloadPenalty}
+                          </p>
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </div>
 
-                <div className="p-2.5 rounded bg-slate-50 border border-slate-100">
-                  <span className="text-slate-500">
-                    Skill Match
+                {/* ARROW */}
+                <div className="flex justify-center">
+                  <span
+                    className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold"
+                    style={{
+                      background: "var(--navy)",
+                      color: "white",
+                    }}
+                  >
+                    →
                   </span>
-
-                  <p className="font-bold text-slate-800 text-sm mt-0.5">
-                    +
-                    {
-                      recommendation
-                        .breakdown.skill
-                    }
-                  </p>
                 </div>
 
-                <div className="p-2.5 rounded bg-slate-50 border border-slate-100">
-                  <span className="text-slate-500">
-                    Availability
-                  </span>
+                {/* REASSIGNED */}
+                <div
+                  className="rounded-lg border-2 p-4"
+                  style={{
+                    borderColor: "var(--success)",
+                    background:
+                      "color-mix(in srgb, var(--success) 5%, white)",
+                  }}
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <span
+                      className="text-xs font-semibold uppercase tracking-wide"
+                      style={{ color: "var(--success)" }}
+                    >
+                      Active Officer
+                    </span>
 
-                  <p className="font-bold text-slate-800 text-sm mt-0.5">
-                    +
-                    {
-                      recommendation
-                        .breakdown
-                        .availability
-                    }
-                  </p>
-                </div>
+                    <span className="gf-status gf-status-success">
+                      Active
+                    </span>
+                  </div>
 
-                <div className="p-2.5 rounded bg-slate-50 border border-slate-100">
-                  <span className="text-slate-500">
-                    Workload Penalty
-                  </span>
-
-                  <p className="font-bold text-slate-800 text-sm mt-0.5">
-                    -
-                    {
-                      recommendation
-                        .breakdown
-                        .workloadPenalty
-                    }
-                  </p>
-                </div>
-
-                <div className="p-2.5 rounded bg-slate-50 border border-slate-100">
-                  <span className="text-slate-500">
-                    Processing Penalty
-                  </span>
-
-                  <p className="font-bold text-slate-800 text-sm mt-0.5">
-                    -
-                    {
-                      recommendation
-                        .breakdown
-                        .processingPenalty
-                    }
-                  </p>
-                </div>
-              </div>
-            </div>
-          )
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-11 gap-4 items-center">
-            {/* ORIGINAL OFFICER */}
-            <div className="lg:col-span-5 p-4 rounded-xl border border-slate-200 bg-slate-50/80">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                  Initial AI Recommendation
-                </span>
-
-                <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-slate-200 text-slate-600">
-                  Replaced
-                </span>
-              </div>
-
-              {recommendation && (
-                <>
-                  <p className="text-base font-bold text-slate-800">
-                    {recommendation.officer.name}
-                    {" "}— Score{" "}
-                    {recommendation.score}
+                  <p
+                    className="text-lg font-semibold"
+                    style={{ color: "var(--navy)" }}
+                  >
+                    {reassignedOfficerName}
                   </p>
 
-                  <div className="grid grid-cols-3 gap-2 mt-3 text-xs">
+                  <p
+                    className="text-xs mt-1"
+                    style={{ color: "var(--muted)" }}
+                  >
+                    Selected through What-If simulation
+                  </p>
+
+                  <div className="grid grid-cols-3 gap-3 mt-4">
                     <div>
-                      <span className="text-slate-500">
+                      <span
+                        className="text-xs"
+                        style={{ color: "var(--muted)" }}
+                      >
                         Authority
                       </span>
 
-                      <p className="font-semibold">
-                        +
-                        {
-                          recommendation
-                            .breakdown
-                            .authority
-                        }
+                      <p
+                        className="text-sm font-semibold"
+                        style={{ color: "var(--success)" }}
+                      >
+                        +{reassignedRecommendation?.breakdown.authority ?? 3}
                       </p>
                     </div>
 
                     <div>
-                      <span className="text-slate-500">
+                      <span
+                        className="text-xs"
+                        style={{ color: "var(--muted)" }}
+                      >
                         Skill
                       </span>
 
-                      <p className="font-semibold">
-                        +
-                        {
-                          recommendation
-                            .breakdown.skill
-                        }
+                      <p
+                        className="text-sm font-semibold"
+                        style={{ color: "var(--success)" }}
+                      >
+                        +{reassignedRecommendation?.breakdown.skill ?? 2}
                       </p>
                     </div>
 
                     <div>
-                      <span className="text-slate-500">
-                        Workload
+                      <span
+                        className="text-xs"
+                        style={{ color: "var(--muted)" }}
+                      >
+                        Availability
                       </span>
 
-                      <p className="font-semibold">
-                        -
-                        {
-                          recommendation
-                            .breakdown
-                            .workloadPenalty
-                        }
+                      <p
+                        className="text-sm font-semibold"
+                        style={{ color: "var(--success)" }}
+                      >
+                        +{reassignedRecommendation?.breakdown.availability ?? 2}
                       </p>
                     </div>
                   </div>
-                </>
-              )}
-            </div>
-
-            {/* ARROW */}
-            <div className="lg:col-span-1 flex justify-center items-center">
-              <span className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-bold flex items-center justify-center text-sm">
-                →
-              </span>
-            </div>
-
-            {/* REASSIGNED OFFICER */}
-            <div className="lg:col-span-5 p-4 rounded-xl border-2 border-blue-500 bg-blue-50/50">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-[11px] font-bold text-blue-900 uppercase tracking-wider">
-                  Reassigned Active Officer
-                </span>
-
-                <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-blue-600 text-white">
-                  Active
-                </span>
-              </div>
-
-              <p className="text-base font-bold text-blue-950">
-                {reassignedOfficerName}
-              </p>
-
-              <div className="grid grid-cols-3 gap-2 mt-3 text-xs">
-                <div>
-                  <span className="text-blue-700">
-                    Authority
-                  </span>
-
-                  <p className="font-semibold text-blue-900">
-                    +
-                    {reassignedRecommendation
-                      ?.breakdown.authority ??
-                      3}
-                  </p>
-                </div>
-
-                <div>
-                  <span className="text-blue-700">
-                    Skill
-                  </span>
-
-                  <p className="font-semibold text-blue-900">
-                    +
-                    {reassignedRecommendation
-                      ?.breakdown.skill ?? 2}
-                  </p>
-                </div>
-
-                <div>
-                  <span className="text-blue-700">
-                    Availability
-                  </span>
-
-                  <p className="font-semibold text-blue-900">
-                    +
-                    {reassignedRecommendation
-                      ?.breakdown
-                      .availability ?? 2}
-                  </p>
                 </div>
               </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {/* SLA BREACH RISK */}
-      <div
-        className="rounded-lg border bg-white p-6"
-        style={{
-          borderColor:
-            "var(--border, #E2E8F0)",
-        }}
-      >
-        <div className="flex items-center justify-between mb-3">
-          <h3
-            className="font-semibold text-sm uppercase tracking-wide"
-            style={{
-              color:
-                "var(--muted, #64748B)",
-            }}
-          >
-            SLA Breach Risk
-          </h3>
-
-          <span
-            className="text-2xl font-bold"
-            style={{
-              color: riskColor(
-                slaRisk.level
-              ),
-            }}
-          >
-            {slaRisk.percentage}%
-          </span>
-        </div>
-
-        <p
-          className="text-sm mb-4"
-          style={{
-            color:
-              "var(--muted, #64748B)",
-          }}
+      <div className="gf-card overflow-hidden mb-6">
+        <div
+          className="px-6 py-4 border-b"
+          style={{ borderColor: "var(--border)" }}
         >
-          Finance queue:{" "}
-          {financeStep.queue_length ?? 0}{" "}
-          files · Assigned:{" "}
-          {reassignedOfficerName ||
-            "Officer A (42/50 load)"}
-        </p>
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <h3
+                className="text-sm font-semibold"
+                style={{ color: "var(--navy)" }}
+              >
+                SLA Breach Risk
+              </h3>
 
-        <div className="flex gap-3">
-          {/* WHY BUTTON */}
-          <button
-            onClick={handleWhy}
-            className="px-4 py-2 rounded text-sm font-medium text-white"
-            style={{
-              background:
-                "var(--navy, #0F172A)",
-            }}
-          >
-            WHY?
-          </button>
+              <p
+                className="text-xs mt-1"
+                style={{ color: "var(--muted)" }}
+              >
+                Predicted risk based on queue pressure, workload, priority,
+                and remaining SLA time.
+              </p>
+            </div>
 
-          {/* SIMULATE BUTTON */}
-          <button
-            onClick={handleSimulate}
-            className="px-4 py-2 rounded text-sm font-medium border"
-            style={{
-              borderColor:
-                "var(--border, #E2E8F0)",
-            }}
-          >
-            Simulate Officer Unavailable
-          </button>
+            <span
+              className={
+                slaRisk.level === "high"
+                  ? "gf-status gf-status-critical"
+                  : slaRisk.level === "medium"
+                    ? "gf-status gf-status-warning"
+                    : "gf-status gf-status-success"
+              }
+            >
+              {slaRisk.level.toUpperCase()} RISK
+            </span>
+          </div>
         </div>
 
-        {/* WHY RESULT */}
-        {whyOpen && (
-          <div
-            className="mt-4 p-4 rounded border text-sm"
-            style={{
-              borderColor:
-                "var(--border, #E2E8F0)",
-              background:
-                "var(--bg, #F8FAFC)",
-            }}
-          >
-            {explLoading
-              ? "Generating explanation..."
-              : explanation}
-          </div>
-        )}
-
-        {/* SIMULATION RESULT */}
-        {simResult && (
-          <div
-            className="mt-4 p-4 rounded border text-sm grid grid-cols-1 md:grid-cols-2 gap-6"
-            style={{
-              borderColor:
-                "var(--border, #E2E8F0)",
-            }}
-          >
-            {/* BEFORE */}
+        <div className="p-6">
+          {/* RISK SUMMARY */}
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
             <div>
-              <p className="font-semibold mb-2">
-                Current
+              <p
+                className="text-xs font-medium"
+                style={{ color: "var(--muted)" }}
+              >
+                Current breach probability
               </p>
 
-              <p>
-                Officer:{" "}
-                {simResult.before?.officer.name ??
-                  "Unknown"}
-              </p>
+              <div className="flex items-baseline gap-2 mt-1">
+                <span
+                  className="text-4xl font-bold"
+                  style={{
+                    color: riskColor(slaRisk.level),
+                  }}
+                >
+                  {slaRisk.percentage}%
+                </span>
 
-              <p>
-                Score:{" "}
-                {simResult.before?.score ??
-                  "N/A"}
-              </p>
-
-              <p>
-                SLA Risk:{" "}
-                {
-                  simResult
-                    .slaRiskBefore
-                    .percentage
-                }
-                %
-              </p>
+                <span
+                  className="text-xs"
+                  style={{ color: "var(--muted)" }}
+                >
+                  predicted risk
+                </span>
+              </div>
             </div>
 
-            {/* AFTER */}
-            <div>
-              <p className="font-semibold mb-2">
-                If Officer A Unavailable
-              </p>
-
-              <p>
-                Officer:{" "}
-                {simResult.after?.officer.name ??
-                  "Unknown"}
-              </p>
-
-              <p>
-                Score:{" "}
-                {simResult.after?.score ??
-                  "N/A"}
-              </p>
-
-              <p>
-                SLA Risk:{" "}
-                {
-                  simResult
-                    .slaRiskAfter
-                    .percentage
-                }
-                %
-              </p>
+            <div
+              className="text-sm"
+              style={{ color: "var(--muted)" }}
+            >
+              Finance queue:{" "}
+              <span
+                className="font-semibold"
+                style={{ color: "var(--navy)" }}
+              >
+                {financeStep.queue_length ?? 0}
+              </span>{" "}
+              files
             </div>
           </div>
-        )}
+
+          {/* RISK BAR */}
+          <div className="mt-5">
+            <div
+              className="h-2 rounded-full overflow-hidden"
+              style={{ background: "var(--border)" }}
+            >
+              <div
+                className="h-full rounded-full transition-all"
+                style={{
+                  width: `${Math.min(slaRisk.percentage, 100)}%`,
+                  background: riskColor(slaRisk.level),
+                }}
+              />
+            </div>
+
+            <div className="flex justify-between mt-2 text-[11px]">
+              <span style={{ color: "var(--success)" }}>
+                Low
+              </span>
+
+              <span style={{ color: "var(--warning)" }}>
+                Medium
+              </span>
+
+              <span style={{ color: "var(--critical)" }}>
+                High
+              </span>
+            </div>
+          </div>
+
+          {/* ASSIGNMENT INFO */}
+          <div
+            className="mt-5 p-4 rounded-lg border"
+            style={{
+              borderColor: "var(--border)",
+              background: "var(--bg)",
+            }}
+          >
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <p
+                  className="text-xs"
+                  style={{ color: "var(--muted)" }}
+                >
+                  Assigned Officer
+                </p>
+
+                <p
+                  className="text-sm font-semibold mt-1"
+                  style={{ color: "var(--navy)" }}
+                >
+                  {reassignedOfficerName ||
+                    "Officer A (42/50 load)"}
+                </p>
+              </div>
+
+              <div>
+                <p
+                  className="text-xs"
+                  style={{ color: "var(--muted)" }}
+                >
+                  Queue Pressure
+                </p>
+
+                <p
+                  className="text-sm font-semibold mt-1"
+                  style={{ color: "var(--navy)" }}
+                >
+                  {financeStep.queue_length ?? 0} active files
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* ACTIONS */}
+          <div className="flex flex-col sm:flex-row gap-3 mt-5">
+            <button
+              onClick={handleWhy}
+              className="gf-button"
+              style={{
+                background: "var(--navy)",
+                color: "white",
+                borderColor: "var(--navy)",
+              }}
+            >
+              WHY?
+            </button>
+
+            <button
+              onClick={handleSimulate}
+              className="gf-button"
+              style={{
+                background: "white",
+                color: "var(--navy)",
+                borderColor: "var(--border)",
+              }}
+            >
+              Simulate Officer Unavailable
+            </button>
+          </div>
+
+          {/* WHY RESULT */}
+          {whyOpen && (
+            <div
+              className="mt-5 p-4 rounded-lg border"
+              style={{
+                borderColor: "var(--border)",
+                background: "var(--bg)",
+              }}
+            >
+              <p
+                className="text-xs font-semibold uppercase tracking-wide mb-2"
+                style={{ color: "var(--muted)" }}
+              >
+                AI Explanation
+              </p>
+
+              <p
+                className="text-sm leading-relaxed"
+                style={{ color: "var(--text)" }}
+              >
+                {explLoading
+                  ? "Generating explanation..."
+                  : explanation}
+              </p>
+            </div>
+          )}
+
+          {/* SIMULATION RESULT */}
+          {simResult && (
+            <div
+              className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4"
+            >
+              {/* CURRENT */}
+              <div
+                className="p-4 rounded-lg border"
+                style={{
+                  borderColor: "var(--border)",
+                  background: "var(--bg)",
+                }}
+              >
+                <p
+                  className="text-xs font-semibold uppercase tracking-wide mb-3"
+                  style={{ color: "var(--muted)" }}
+                >
+                  Current
+                </p>
+
+                <p className="text-sm">
+                  Officer:{" "}
+                  <span className="font-semibold">
+                    {simResult.before?.officer.name ??
+                      "Unknown"}
+                  </span>
+                </p>
+
+                <p className="text-sm mt-2">
+                  Match Score:{" "}
+                  <span className="font-semibold">
+                    {simResult.before?.score ?? "N/A"}
+                  </span>
+                </p>
+
+                <p className="text-sm mt-2">
+                  SLA Risk:{" "}
+                  <span
+                    className="font-semibold"
+                    style={{
+                      color: riskColor(
+                        simResult.slaRiskBefore.level
+                      ),
+                    }}
+                  >
+                    {simResult.slaRiskBefore.percentage}%
+                  </span>
+                </p>
+              </div>
+
+              {/* SIMULATED */}
+              <div
+                className="p-4 rounded-lg border"
+                style={{
+                  borderColor: "var(--border)",
+                  background: "white",
+                }}
+              >
+                <p
+                  className="text-xs font-semibold uppercase tracking-wide mb-3"
+                  style={{ color: "var(--muted)" }}
+                >
+                  Simulated Scenario
+                </p>
+
+                <p className="text-sm">
+                  Officer:{" "}
+                  <span className="font-semibold">
+                    {simResult.after?.officer.name ??
+                      "Unknown"}
+                  </span>
+                </p>
+
+                <p className="text-sm mt-2">
+                  Match Score:{" "}
+                  <span className="font-semibold">
+                    {simResult.after?.score ?? "N/A"}
+                  </span>
+                </p>
+
+                <p className="text-sm mt-2">
+                  SLA Risk:{" "}
+                  <span
+                    className="font-semibold"
+                    style={{
+                      color: riskColor(
+                        simResult.slaRiskAfter.level
+                      ),
+                    }}
+                  >
+                    {simResult.slaRiskAfter.percentage}%
+                  </span>
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
       {notificationOpen && (
         <div
