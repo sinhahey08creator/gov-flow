@@ -356,3 +356,34 @@ app/
 - Updated Sidebar navigation in `components/Sidebar.tsx`:
   - Added `Audit Log` route link (`/audit`)
   - Added active state highlight for `/audit` route
+
+
+  ## 11.  What-If Simulator
+
+## Overview
+The What-If Simulator module tests officer unavailability, calculates workflow delays, and reassigns cases. Changes made in the simulator sync instantly to the main dashboard.
+
+---
+
+## Files Updated
+
+* **`app/(main)/simulator/page.tsx`**
+  * Controls simulation parameter configuration and delay impact calculation.
+  * Calls `updateCaseOfficer()` when reassignment is applied.
+
+* **`app/(main)/page.tsx`**
+  * Listens for assignment changes in real time.
+  * Transforms the **Recommended Officer Allocation** section to show both original and reassigned officers side-by-side.
+
+* **`lib/workflow/templates.ts`**
+  * Stores demo case data (`GF-1024`).
+  * Contains `updateCaseOfficer()` to update officer state globally across routes.
+
+---
+
+## Feature Workflow
+
+1. User selects a case and officer in `/simulator` and clicks **Run Scenario Simulation**.
+2. User clicks **Apply Reassignment**.
+3. Dashboard (`/`) automatically detects the update and displays:
+   **Original Officer (Replaced)** $\longrightarrow$ **Reassigned Officer (Active)**

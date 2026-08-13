@@ -1,8 +1,22 @@
 "use client";
 
+<<<<<<< HEAD
 import { useState, useEffect } from "react";
 import { DEMO_CASE, SEED_OFFICERS, DEMO_FINANCE_QUEUE_LENGTH, DEMO_ASSIGNED_OFFICER_ID } from "@/lib/demo/seedData";
 import { WORKFLOW_TEMPLATES, validateDocuments, DEMO_CASES } from "@/lib/workflow/templates";
+=======
+import { useState } from "react";
+import {
+  DEMO_CASE,
+  SEED_OFFICERS,
+  DEMO_FINANCE_QUEUE_LENGTH,
+  DEMO_ASSIGNED_OFFICER_ID,
+} from "@/lib/demo/seedData";
+import {
+  WORKFLOW_TEMPLATES,
+  validateDocuments,
+} from "@/lib/workflow/templates";
+>>>>>>> 19f4eb9b45e6b4dd2d9bb439d57c304810f6978b
 import { recommendOfficer } from "@/lib/calculations/officerScore";
 import { calculateSLARisk } from "@/lib/calculations/slaRisk";
 import { simulateOfficerUnavailable } from "@/lib/calculations/whatIf";
@@ -11,7 +25,8 @@ import DocumentUpload from "@/components/DocumentUpload";
 import { logAction } from "@/lib/audit/data";
 
 const steps = WORKFLOW_TEMPLATES.land_compensation;
-const financeStepDef = steps[3]; // Finance Verification
+const financeStepDef = steps[3];
+
 const financeStep: WorkflowStep = {
   id: "step-finance",
   case_id: DEMO_CASE.id,
@@ -26,9 +41,22 @@ const financeStep: WorkflowStep = {
   queue_length: DEMO_FINANCE_QUEUE_LENGTH,
 };
 
+<<<<<<< HEAD
 const documentsDetected = (DEMO_CASE.extracted_data as { documents_detected?: string[] })?.documents_detected || [];
 const validation = validateDocuments(DEMO_CASE.case_type as CaseType, documentsDetected);
 const defaultRecommendation = recommendOfficer(SEED_OFFICERS, financeStep);
+=======
+const documentsDetected = (
+  DEMO_CASE.extracted_data as { documents_detected: string[] }
+).documents_detected;
+
+const validation = validateDocuments(
+  DEMO_CASE.case_type,
+  documentsDetected
+);
+
+const recommendation = recommendOfficer(SEED_OFFICERS, financeStep);
+>>>>>>> 19f4eb9b45e6b4dd2d9bb439d57c304810f6978b
 
 const slaRisk = calculateSLARisk({
   createdAt: DEMO_CASE.created_at,
@@ -46,14 +74,20 @@ function riskColor(level: string) {
 export default function DashboardPage() {
   const [whyOpen, setWhyOpen] = useState(false);
   const [newCaseOpen, setNewCaseOpen] = useState(false);
+
   const [caseType, setCaseType] = useState("Land Compensation");
   const [applicantName, setApplicantName] = useState("");
   const [district, setDistrict] = useState("");
   const [caseFile, setCaseFile] = useState<File | null>(null);
+
   const [caseCreated, setCaseCreated] = useState(false);
+
   const [explanation, setExplanation] = useState<string | null>(null);
   const [explLoading, setExplLoading] = useState(false);
-  const [simResult, setSimResult] = useState<ReturnType<typeof simulateOfficerUnavailable> | null>(null);
+
+  const [simResult, setSimResult] = useState<
+    ReturnType<typeof simulateOfficerUnavailable> | null
+  >(null);
 
   // Reassignment tracking state
   const [reassignedOfficerName, setReassignedOfficerName] = useState<string | null>(null);
@@ -96,18 +130,26 @@ export default function DashboardPage() {
     try {
       const res = await fetch("/api/explain-bottleneck", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
           case_id: DEMO_CASE.case_number,
           department: financeStep.department,
           officer: defaultRecommendation?.officer.name ?? "Unknown",
           current_load: defaultRecommendation?.officer.current_load ?? 0,
           queue_length: financeStep.queue_length,
+<<<<<<< HEAD
           avg_processing_days: defaultRecommendation?.officer.avg_processing_days ?? 0,
+=======
+          avg_processing_days:
+            recommendation?.officer.avg_processing_days ?? 0,
+>>>>>>> 19f4eb9b45e6b4dd2d9bb439d57c304810f6978b
           sla_risk: slaRisk.percentage,
           priority: DEMO_CASE.priority,
         }),
       });
+
       const data = await res.json();
       setExplanation(data.explanation);
     } catch {
@@ -124,29 +166,66 @@ export default function DashboardPage() {
       step: financeStep,
       caseData: DEMO_CASE,
     });
+
     setSimResult(result);
     logAction("simulation run", "Simulated Officer A unavailable");
   }
 
   return (
+<<<<<<< HEAD
     <main className="min-h-screen px-8 py-8 max-w-6xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold" style={{ color: "var(--navy, #0F172A)" }}>GovFlow AI</h1>
           <p className="text-sm" style={{ color: "var(--muted, #64748B)" }}>Intelligent Government Workflow Operations</p>
+=======
+    <main className="min-h-screen px-8 py-8 max-w-6xl mx-auto">
+      {/* HEADER */}
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1
+            className="text-2xl font-semibold"
+            style={{ color: "var(--navy)" }}
+          >
+            GovFlow AI
+          </h1>
+
+          <p
+            className="text-sm"
+            style={{ color: "var(--muted)" }}
+          >
+            Intelligent Government Workflow Operations
+          </p>
+>>>>>>> 19f4eb9b45e6b4dd2d9bb439d57c304810f6978b
         </div>
+
         <div className="flex items-center gap-3">
           <span
             className="text-xs font-medium px-3 py-1 rounded-full border"
+<<<<<<< HEAD
             style={{ borderColor: "var(--border, #E2E8F0)", color: "var(--muted, #64748B)" }}
+=======
+            style={{
+              borderColor: "var(--border)",
+              color: "var(--muted)",
+            }}
+>>>>>>> 19f4eb9b45e6b4dd2d9bb439d57c304810f6978b
           >
             DEMO MODE · Synthetic Data
           </span>
 
           <button
+<<<<<<< HEAD
             onClick={() => setNewCaseOpen(true)}
             className="px-4 py-2 rounded-md text-sm font-medium text-white shadow-sm hover:bg-blue-700 transition-colors"
+=======
+            onClick={() => {
+              setNewCaseOpen(true);
+              setCaseCreated(false);
+            }}
+            className="px-4 py-2 rounded-md text-sm font-medium text-white"
+>>>>>>> 19f4eb9b45e6b4dd2d9bb439d57c304810f6978b
             style={{ background: "#2563EB" }}
           >
             + New Case
@@ -154,12 +233,24 @@ export default function DashboardPage() {
         </div>
       </div>
 
+<<<<<<< HEAD
       {/* New Case Modal */}
+=======
+      {/* NEW CASE MODAL */}
+>>>>>>> 19f4eb9b45e6b4dd2d9bb439d57c304810f6978b
       {newCaseOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-xl">
+            {/* MODAL HEADER */}
             <div className="flex items-center justify-between mb-6">
+<<<<<<< HEAD
               <h2 className="text-xl font-semibold" style={{ color: "var(--navy, #0F172A)" }}>
+=======
+              <h2
+                className="text-xl font-semibold"
+                style={{ color: "var(--navy)" }}
+              >
+>>>>>>> 19f4eb9b45e6b4dd2d9bb439d57c304810f6978b
                 New Case
               </h2>
               <button
@@ -171,11 +262,19 @@ export default function DashboardPage() {
               </button>
             </div>
 
+<<<<<<< HEAD
             <p className="text-sm mb-6" style={{ color: "var(--muted, #64748B)" }}>
+=======
+            <p
+              className="text-sm mb-6"
+              style={{ color: "var(--muted)" }}
+            >
+>>>>>>> 19f4eb9b45e6b4dd2d9bb439d57c304810f6978b
               Upload a government case document to begin processing.
             </p>
 
             <div className="space-y-4">
+              {/* CASE TYPE */}
               <div>
                 <label className="block text-sm font-medium mb-1">Case Type</label>
                 <select
@@ -190,6 +289,7 @@ export default function DashboardPage() {
                 </select>
               </div>
 
+              {/* APPLICANT NAME */}
               <div>
                 <label className="block text-sm font-medium mb-1">Applicant Name</label>
                 <input
@@ -202,6 +302,7 @@ export default function DashboardPage() {
                 />
               </div>
 
+              {/* DISTRICT */}
               <div>
                 <label className="block text-sm font-medium mb-1">District</label>
                 <input
@@ -214,6 +315,7 @@ export default function DashboardPage() {
                 />
               </div>
 
+              {/* CASE DOCUMENT */}
               <div>
                 <label className="block text-sm font-medium mb-1">Case Document</label>
 
@@ -223,10 +325,16 @@ export default function DashboardPage() {
                     style={{ borderColor: "var(--border, #E2E8F0)" }}
                   >
                     Choose File
+
                     <input
                       type="file"
                       accept=".pdf,.png,.jpg,.jpeg"
-                      onChange={(e) => setCaseFile(e.target.files?.[0] ?? null)}
+                      onChange={(e) => {
+                        setCaseFile(
+                          e.target.files?.[0] ?? null
+                        );
+                        setCaseCreated(false);
+                      }}
                       className="hidden"
                     />
                   </label>
@@ -238,7 +346,10 @@ export default function DashboardPage() {
                     <span className="truncate">{caseFile.name}</span>
                     <button
                       type="button"
-                      onClick={() => setCaseFile(null)}
+                      onClick={() => {
+                        setCaseFile(null);
+                        setCaseCreated(false);
+                      }}
                       className="ml-3 text-xs font-medium"
                       style={{ color: "var(--critical, #EF4444)" }}
                     >
@@ -251,6 +362,7 @@ export default function DashboardPage() {
                   PDF, PNG or JPG · up to 10MB
                 </p>
 
+                {/* SUCCESS MESSAGE */}
                 {caseCreated && (
                   <div
                     className="mt-2 rounded-md border px-4 py-3 text-sm"
@@ -266,6 +378,7 @@ export default function DashboardPage() {
               </div>
             </div>
 
+            {/* MODAL BUTTONS */}
             <div className="flex justify-end gap-3 mt-6">
               <button
                 onClick={() => setNewCaseOpen(false)}
@@ -275,10 +388,22 @@ export default function DashboardPage() {
                 Cancel
               </button>
 
+              {/* CREATE CASE — ALWAYS ENABLED */}
               <button
                 onClick={() => {
+<<<<<<< HEAD
                   if (!applicantName.trim() || !district.trim() || !caseFile) {
                     alert("Please enter the applicant name, district, and upload a case document.");
+=======
+                  if (
+                    !applicantName.trim() ||
+                    !district.trim() ||
+                    !caseFile
+                  ) {
+                    alert(
+                      "Please enter the applicant name, district, and upload a case document."
+                    );
+>>>>>>> 19f4eb9b45e6b4dd2d9bb439d57c304810f6978b
                     return;
                   }
 
@@ -288,17 +413,44 @@ export default function DashboardPage() {
                     case_number: caseNumber,
                     case_type: caseType.toLowerCase().replace(/ /g, "_"),
                     applicant_name: applicantName,
+
                     district,
+
                     priority: "medium",
+
                     status: "pending",
+
                     compensation_status: "not_started",
+
                     current_step: 1,
+
                     created_at: new Date().toISOString(),
+
                     sla_hours: 72,
                   };
 
+<<<<<<< HEAD
                   const existingCases = JSON.parse(localStorage.getItem("govflow-cases") || "[]");
                   localStorage.setItem("govflow-cases", JSON.stringify([...existingCases, newCase]));
+=======
+                  const existingCases = JSON.parse(
+                    localStorage.getItem("govflow-cases") || "[]"
+                  );
+
+                  localStorage.setItem(
+                    "govflow-cases",
+                    JSON.stringify([
+                      ...existingCases,
+                      newCase,
+                    ])
+                  );
+
+                  // Auto-log the action
+                  logAction(
+                    "case created",
+                    `Created new case ${caseNumber} for applicant ${applicantName}`
+                  );
+>>>>>>> 19f4eb9b45e6b4dd2d9bb439d57c304810f6978b
 
                   logAction("case created", `Created new case ${caseNumber} for applicant ${applicantName}`);
                   setCaseCreated(true);
@@ -313,6 +465,7 @@ export default function DashboardPage() {
         </div>
       )}
 
+<<<<<<< HEAD
       {/* Document Upload Widget */}
       <DocumentUpload />
 
@@ -322,15 +475,49 @@ export default function DashboardPage() {
           <div>
             <h2 className="text-lg font-semibold">GF-1024 — Land Compensation</h2>
             <p className="text-sm" style={{ color: "var(--muted, #64748B)" }}>{DEMO_CASE.summary}</p>
+=======
+      {/* DOCUMENT UPLOAD */}
+      <div className="mb-6">
+        <DocumentUpload />
+      </div>
+
+      {/* CASE SUMMARY */}
+      <div
+        className="rounded-lg border bg-white p-6 mb-6"
+        style={{ borderColor: "var(--border)" }}
+      >
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-lg font-semibold">
+              {DEMO_CASE.case_number} — Land Compensation
+            </h2>
+
+            <p
+              className="text-sm"
+              style={{ color: "var(--muted)" }}
+            >
+              {DEMO_CASE.summary}
+            </p>
+>>>>>>> 19f4eb9b45e6b4dd2d9bb439d57c304810f6978b
           </div>
+
           <span
             className="text-sm font-semibold px-3 py-1 rounded"
-            style={{ background: `${riskColor(slaRisk.level)}1A`, color: riskColor(slaRisk.level) }}
+            style={{
+              background: `${riskColor(slaRisk.level)}1A`,
+              color: riskColor(slaRisk.level),
+            }}
           >
-            {slaRisk.level === "high" ? "🔴 AT RISK" : slaRisk.level === "medium" ? "🟠 WATCH" : "🟢 ON TRACK"}
+            {slaRisk.level === "high"
+              ? "🔴 AT RISK"
+              : slaRisk.level === "medium"
+                ? "🟠 WATCH"
+                : "🟢 ON TRACK"}
           </span>
         </div>
+
         <div className="grid grid-cols-4 gap-4 text-sm">
+<<<<<<< HEAD
           <div><span style={{ color: "var(--muted, #64748B)" }}>Applicant</span><p className="font-medium">{DEMO_CASE.applicant_name}</p></div>
           <div><span style={{ color: "var(--muted, #64748B)" }}>District</span><p className="font-medium">{DEMO_CASE.district}</p></div>
           <div><span style={{ color: "var(--muted, #64748B)" }}>Priority</span><p className="font-medium capitalize">{DEMO_CASE.priority}</p></div>
@@ -342,36 +529,173 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="rounded-lg border bg-white p-6" style={{ borderColor: "var(--border, #E2E8F0)" }}>
           <h3 className="font-semibold mb-3 text-xs uppercase tracking-wide" style={{ color: "var(--muted, #64748B)" }}>Document Check</h3>
+=======
+          <div>
+            <span style={{ color: "var(--muted)" }}>
+              Applicant
+            </span>
+
+            <p className="font-medium">
+              {DEMO_CASE.applicant_name}
+            </p>
+          </div>
+
+          <div>
+            <span style={{ color: "var(--muted)" }}>
+              District
+            </span>
+
+            <p className="font-medium">
+              {DEMO_CASE.district}
+            </p>
+          </div>
+
+          <div>
+            <span style={{ color: "var(--muted)" }}>
+              Priority
+            </span>
+
+            <p className="font-medium capitalize">
+              {DEMO_CASE.priority}
+            </p>
+          </div>
+
+          <div>
+            <span style={{ color: "var(--muted)" }}>
+              SLA
+            </span>
+
+            <p className="font-medium">
+              {DEMO_CASE.sla_hours}h
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* DOCUMENT CHECK + WORKFLOW */}
+      <div className="grid grid-cols-2 gap-6 mb-6">
+        {/* DOCUMENT CHECK */}
+        <div
+          className="rounded-lg border bg-white p-6"
+          style={{ borderColor: "var(--border)" }}
+        >
+          <h3
+            className="font-semibold mb-3 text-sm uppercase tracking-wide"
+            style={{ color: "var(--muted)" }}
+          >
+            Document Check
+          </h3>
+
+>>>>>>> 19f4eb9b45e6b4dd2d9bb439d57c304810f6978b
           <ul className="space-y-2 text-sm">
             {validation.required.map((doc) => {
-              const present = validation.present.includes(doc);
+              const present =
+                validation.present.includes(doc);
+
               return (
+<<<<<<< HEAD
                 <li key={doc} className="flex justify-between">
                   <span className="capitalize">{doc.replace(/_/g, " ")}</span>
                   <span style={{ color: present ? "var(--success, #10B981)" : "var(--critical, #EF4444)" }}>{present ? "✓" : "✗ Missing"}</span>
+=======
+                <li
+                  key={doc}
+                  className="flex justify-between"
+                >
+                  <span className="capitalize">
+                    {doc.replace(/_/g, " ")}
+                  </span>
+
+                  <span
+                    style={{
+                      color: present
+                        ? "var(--success)"
+                        : "var(--critical)",
+                    }}
+                  >
+                    {present ? "✓" : "✗ Missing"}
+                  </span>
+>>>>>>> 19f4eb9b45e6b4dd2d9bb439d57c304810f6978b
                 </li>
               );
             })}
           </ul>
+
           {!validation.complete && (
+<<<<<<< HEAD
             <button className="mt-4 text-xs font-medium px-3 py-1.5 rounded border" style={{ borderColor: "var(--border, #E2E8F0)", color: "var(--navy, #0F172A)" }}>
+=======
+            <button
+              className="mt-4 text-sm px-3 py-1.5 rounded border"
+              style={{
+                borderColor: "var(--border)",
+                color: "var(--navy)",
+              }}
+            >
+>>>>>>> 19f4eb9b45e6b4dd2d9bb439d57c304810f6978b
               Request Missing Document
             </button>
           )}
         </div>
 
+<<<<<<< HEAD
         <div className="rounded-lg border bg-white p-6" style={{ borderColor: "var(--border, #E2E8F0)" }}>
           <h3 className="font-semibold mb-3 text-xs uppercase tracking-wide" style={{ color: "var(--muted, #64748B)" }}>Workflow</h3>
+=======
+        {/* WORKFLOW */}
+        <div
+          className="rounded-lg border bg-white p-6"
+          style={{ borderColor: "var(--border)" }}
+        >
+          <h3
+            className="font-semibold mb-3 text-sm uppercase tracking-wide"
+            style={{ color: "var(--muted)" }}
+          >
+            Workflow
+          </h3>
+
+>>>>>>> 19f4eb9b45e6b4dd2d9bb439d57c304810f6978b
           <ol className="space-y-2 text-sm">
             {steps.map((s, i) => {
               const stepNum = i + 1;
+
               const isBlocked = stepNum === 4;
               const isDone = stepNum < 4;
+
               return (
+<<<<<<< HEAD
                 <li key={s.name} className="flex items-center gap-2">
                   <span>{isDone ? "✓" : isBlocked ? "🔴" : "○"}</span>
                   <span className={isBlocked ? "font-medium" : ""}>{s.name}</span>
                   <span className="ml-auto text-xs" style={{ color: "var(--muted, #64748B)" }}>{s.department}</span>
+=======
+                <li
+                  key={s.name}
+                  className="flex items-center gap-2"
+                >
+                  <span>
+                    {isDone
+                      ? "✓"
+                      : isBlocked
+                        ? "🔴"
+                        : "○"}
+                  </span>
+
+                  <span
+                    className={
+                      isBlocked ? "font-medium" : ""
+                    }
+                  >
+                    {s.name}
+                  </span>
+
+                  <span
+                    className="ml-auto text-xs"
+                    style={{ color: "var(--muted)" }}
+                  >
+                    {s.department}
+                  </span>
+>>>>>>> 19f4eb9b45e6b4dd2d9bb439d57c304810f6978b
                 </li>
               );
             })}
@@ -379,6 +703,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
+<<<<<<< HEAD
       {/* DYNAMIC RECOMMENDED OFFICER CARD (SHOWS ORIGINAL VS REASSIGNED) */}
       <div className="rounded-lg border bg-white p-6 shadow-sm" style={{ borderColor: "var(--border, #E2E8F0)" }}>
         <div className="flex items-center justify-between mb-4">
@@ -424,6 +749,61 @@ export default function DashboardPage() {
                 <div><span className="text-slate-500">Authority</span><p className="font-semibold">+{defaultRecommendation?.breakdown.authority}</p></div>
                 <div><span className="text-slate-500">Skill</span><p className="font-semibold">+{defaultRecommendation?.breakdown.skill}</p></div>
                 <div><span className="text-slate-500">Workload</span><p className="font-semibold">-{defaultRecommendation?.breakdown.workloadPenalty}</p></div>
+=======
+      {/* RECOMMENDED OFFICER */}
+      <div
+        className="rounded-lg border bg-white p-6 mb-6"
+        style={{ borderColor: "var(--border)" }}
+      >
+        <h3
+          className="font-semibold mb-3 text-sm uppercase tracking-wide"
+          style={{ color: "var(--muted)" }}
+        >
+          Recommended Officer
+        </h3>
+
+        {recommendation && (
+          <>
+            <p className="text-lg font-semibold">
+              {recommendation.officer.name} — Score{" "}
+              {recommendation.score}
+            </p>
+
+            <div className="grid grid-cols-5 gap-3 mt-3 text-sm">
+              <div>
+                Authority Match
+                <p className="font-medium">
+                  +{recommendation.breakdown.authority}
+                </p>
+              </div>
+
+              <div>
+                Skill Match
+                <p className="font-medium">
+                  +{recommendation.breakdown.skill}
+                </p>
+              </div>
+
+              <div>
+                Availability
+                <p className="font-medium">
+                  +{recommendation.breakdown.availability}
+                </p>
+              </div>
+
+              <div>
+                Workload Penalty
+                <p className="font-medium">
+                  -{recommendation.breakdown.workloadPenalty}
+                </p>
+              </div>
+
+              <div>
+                Processing Penalty
+                <p className="font-medium">
+                  -{recommendation.breakdown.processingPenalty}
+                </p>
+>>>>>>> 19f4eb9b45e6b4dd2d9bb439d57c304810f6978b
               </div>
             </div>
 
@@ -453,6 +833,7 @@ export default function DashboardPage() {
         )}
       </div>
 
+<<<<<<< HEAD
       {/* SLA Breach Risk & Simulation Trigger Card */}
       <div className="rounded-lg border bg-white p-6" style={{ borderColor: "var(--border, #E2E8F0)" }}>
         <div className="flex items-center justify-between mb-3">
@@ -461,35 +842,132 @@ export default function DashboardPage() {
         </div>
         <p className="text-sm mb-4" style={{ color: "var(--muted, #64748B)" }}>
           Finance queue: {financeStep.queue_length} files · Assigned: {reassignedOfficerName || "Officer A (42/50 load)"}
+=======
+      {/* SLA BREACH RISK */}
+      <div
+        className="rounded-lg border bg-white p-6 mb-6"
+        style={{ borderColor: "var(--border)" }}
+      >
+        <div className="flex items-center justify-between mb-3">
+          <h3
+            className="font-semibold text-sm uppercase tracking-wide"
+            style={{ color: "var(--muted)" }}
+          >
+            SLA Breach Risk
+          </h3>
+
+          <span
+            className="text-2xl font-bold"
+            style={{
+              color: riskColor(slaRisk.level),
+            }}
+          >
+            {slaRisk.percentage}%
+          </span>
+        </div>
+
+        <p
+          className="text-sm mb-4"
+          style={{ color: "var(--muted)" }}
+        >
+          Finance queue: {financeStep.queue_length} files ·
+          Assigned: Officer A (42/50 load)
+>>>>>>> 19f4eb9b45e6b4dd2d9bb439d57c304810f6978b
         </p>
+
         <div className="flex gap-3">
+<<<<<<< HEAD
           <button onClick={handleWhy} className="px-4 py-2 rounded text-sm font-medium text-white shadow-sm hover:opacity-90 transition-opacity" style={{ background: "var(--navy, #0F172A)" }}>
             WHY?
           </button>
           <button onClick={handleSimulate} className="px-4 py-2 rounded text-sm font-medium border hover:bg-slate-50 transition-colors" style={{ borderColor: "var(--border, #E2E8F0)" }}>
+=======
+          <button
+            onClick={handleWhy}
+            className="px-4 py-2 rounded text-sm font-medium text-white"
+            style={{ background: "var(--navy)" }}
+          >
+            WHY?
+          </button>
+
+          <button
+            onClick={handleSimulate}
+            className="px-4 py-2 rounded text-sm font-medium border"
+            style={{ borderColor: "var(--border)" }}
+          >
+>>>>>>> 19f4eb9b45e6b4dd2d9bb439d57c304810f6978b
             Simulate Officer Unavailable
           </button>
         </div>
 
+        {/* WHY RESULT */}
         {whyOpen && (
+<<<<<<< HEAD
           <div className="mt-4 p-4 rounded border text-sm" style={{ borderColor: "var(--border, #E2E8F0)", background: "var(--bg, #F8FAFC)" }}>
             {explLoading ? "Generating explanation..." : explanation}
+=======
+          <div
+            className="mt-4 p-4 rounded border text-sm"
+            style={{
+              borderColor: "var(--border)",
+              background: "var(--bg)",
+            }}
+          >
+            {explLoading
+              ? "Generating explanation..."
+              : explanation}
+>>>>>>> 19f4eb9b45e6b4dd2d9bb439d57c304810f6978b
           </div>
         )}
 
+        {/* SIMULATION RESULT */}
         {simResult && (
+<<<<<<< HEAD
           <div className="mt-4 p-4 rounded border text-sm grid grid-cols-2 gap-6" style={{ borderColor: "var(--border, #E2E8F0)" }}>
+=======
+          <div
+            className="mt-4 p-4 rounded border text-sm grid grid-cols-2 gap-6"
+            style={{ borderColor: "var(--border)" }}
+          >
+>>>>>>> 19f4eb9b45e6b4dd2d9bb439d57c304810f6978b
             <div>
-              <p className="font-semibold mb-1">Current</p>
-              <p>Officer: {simResult.before?.officer.name}</p>
-              <p>Score: {simResult.before?.score}</p>
-              <p>SLA Risk: {simResult.slaRiskBefore.percentage}%</p>
+              <p className="font-semibold mb-1">
+                Current
+              </p>
+
+              <p>
+                Officer:{" "}
+                {simResult.before?.officer.name}
+              </p>
+
+              <p>
+                Score: {simResult.before?.score}
+              </p>
+
+              <p>
+                SLA Risk:{" "}
+                {simResult.slaRiskBefore.percentage}%
+              </p>
             </div>
+
             <div>
-              <p className="font-semibold mb-1">If Officer A Unavailable</p>
-              <p>Officer: {simResult.after?.officer.name}</p>
-              <p>Score: {simResult.after?.score}</p>
-              <p>SLA Risk: {simResult.slaRiskAfter.percentage}%</p>
+              <p className="font-semibold mb-1">
+                If Officer A Unavailable
+              </p>
+
+              <p>
+                Officer:{" "}
+                {simResult.after?.officer.name}
+              </p>
+
+              <p>
+                Score: {simResult.after?.score}
+              </p>
+
+              <p>
+                SLA Risk:{" "}
+                {simResult.slaRiskAfter.percentage}%
+              </p>
             </div>
           </div>
         )}

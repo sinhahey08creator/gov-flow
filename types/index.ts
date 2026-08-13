@@ -3,6 +3,8 @@ export type CaseType =
   | "birth_certificate_correction"
   | "citizen_grievance";
 
+export type ExtractedCaseType = CaseType | "unsupported";
+
 export type Priority = "low" | "medium" | "high";
 export type RiskLevel = "low" | "medium" | "high";
 
@@ -45,6 +47,7 @@ export interface CaseRecord {
   summary: string;
   extracted_data: Record<string, unknown>;
   created_at: string;
+  compensation_status?: string; // "not_started" | "pending" | "disbursed" | "rejected"
 }
 
 export interface DocumentRecord {
