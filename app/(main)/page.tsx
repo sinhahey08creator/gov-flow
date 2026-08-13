@@ -71,6 +71,11 @@ function riskColor(level: string) {
 export default function DashboardPage() {
   const [whyOpen, setWhyOpen] = useState(false);
   const [newCaseOpen, setNewCaseOpen] = useState(false);
+  const [notificationOpen, setNotificationOpen] = useState(false);
+  const [notificationMethod, setNotificationMethod] = useState<"email" | "sms">("email");
+  const [notificationSent, setNotificationSent] = useState(false);
+  const [notificationSending, setNotificationSending] = useState(false);
+  const [notificationError, setNotificationError] = useState<string | null>(null);
 
   const [caseType, setCaseType] =
     useState("Land Compensation");
@@ -584,25 +589,18 @@ export default function DashboardPage() {
 
       {/* CASE SUMMARY */}
       <div
-        className="rounded-lg border bg-white p-6"
-        style={{
-          borderColor:
-            "var(--border, #E2E8F0)",
-        }}
+        className="rounded-lg border bg-white p-6 mb-6"
+        style={{ borderColor: "var(--border)" }}
       >
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-lg font-semibold">
-              {DEMO_CASE.case_number} —
-              {" "}Land Compensation
+              {DEMO_CASE.case_number} — Land Compensation
             </h2>
 
             <p
               className="text-sm"
-              style={{
-                color:
-                  "var(--muted, #64748B)",
-              }}
+              style={{ color: "var(--muted)" }}
             >
               {DEMO_CASE.summary}
             </p>
@@ -611,12 +609,8 @@ export default function DashboardPage() {
           <span
             className="text-sm font-semibold px-3 py-1 rounded"
             style={{
-              background: `${riskColor(
-                slaRisk.level
-              )}1A`,
-              color: riskColor(
-                slaRisk.level
-              ),
+              background: `${riskColor(slaRisk.level)}1A`,
+              color: riskColor(slaRisk.level),
             }}
           >
             {slaRisk.level === "high"
@@ -627,14 +621,9 @@ export default function DashboardPage() {
           </span>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
+        <div className="grid grid-cols-4 gap-4 text-sm">
           <div>
-            <span
-              style={{
-                color:
-                  "var(--muted, #64748B)",
-              }}
-            >
+            <span style={{ color: "var(--muted)" }}>
               Applicant
             </span>
 
@@ -644,12 +633,7 @@ export default function DashboardPage() {
           </div>
 
           <div>
-            <span
-              style={{
-                color:
-                  "var(--muted, #64748B)",
-              }}
-            >
+            <span style={{ color: "var(--muted)" }}>
               District
             </span>
 
@@ -659,12 +643,7 @@ export default function DashboardPage() {
           </div>
 
           <div>
-            <span
-              style={{
-                color:
-                  "var(--muted, #64748B)",
-              }}
-            >
+            <span style={{ color: "var(--muted)" }}>
               Priority
             </span>
 
@@ -674,12 +653,7 @@ export default function DashboardPage() {
           </div>
 
           <div>
-            <span
-              style={{
-                color:
-                  "var(--muted, #64748B)",
-              }}
-            >
+            <span style={{ color: "var(--muted)" }}>
               SLA
             </span>
 
@@ -691,121 +665,82 @@ export default function DashboardPage() {
       </div>
 
       {/* DOCUMENT CHECK + WORKFLOW */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-2 gap-6 mb-6">
         {/* DOCUMENT CHECK */}
         <div
           className="rounded-lg border bg-white p-6"
-          style={{
-            borderColor:
-              "var(--border, #E2E8F0)",
-          }}
+          style={{ borderColor: "var(--border)" }}
         >
           <h3
             className="font-semibold mb-3 text-sm uppercase tracking-wide"
-            style={{
-              color:
-                "var(--muted, #64748B)",
-            }}
+            style={{ color: "var(--muted)" }}
           >
             Document Check
           </h3>
 
           <ul className="space-y-2 text-sm">
-            {validation.required.map(
-              (doc) => {
-                const present =
-                  validation.present.includes(
-                    doc
-                  );
+            {validation.required.map((doc) => {
+              const present =
+                validation.present.includes(doc);
 
-                return (
-                  <li
-                    key={doc}
-                    className="flex justify-between"
+              return (
+                <li
+                  key={doc}
+                  className="flex justify-between"
+                >
+                  <span className="capitalize">
+                    {doc.replace(/_/g, " ")}
+                  </span>
+
+                  <span
+                    style={{
+                      color: present
+                        ? "var(--success)"
+                        : "var(--critical)",
+                    }}
                   >
-                    <span className="capitalize">
-                      {doc.replace(
-                        /_/g,
-                        " "
-                      )}
-                    </span>
-
-                    <span
-                      style={{
-                        color: present
-                          ? "var(--success, #10B981)"
-                          : "var(--critical, #EF4444)",
-                      }}
-                    >
-                      {present
-                        ? "✓"
-                        : "✗ Missing"}
-                    </span>
-                  </li>
-                );
-              }
-            )}
+                    {present ? "✓" : "✗ Missing"}
+                  </span>
+                </li>
+              );
+            })}
           </ul>
 
           {!validation.complete && (
             <button
               className="mt-4 text-sm px-3 py-1.5 rounded border"
               style={{
-                borderColor:
-                  "var(--border, #E2E8F0)",
-                color:
-                  "var(--navy, #0F172A)",
+                borderColor: "var(--border)",
+                color: "var(--navy)",
               }}
             >
               Request Missing Document
             </button>
-          )}
-
-          {validation.complete && (
-            <p
-              className="mt-4 text-sm font-medium"
-              style={{
-                color:
-                  "var(--success, #10B981)",
-              }}
-            >
-              ✓ All required documents
-              available
-            </p>
           )}
         </div>
 
         {/* WORKFLOW */}
         <div
           className="rounded-lg border bg-white p-6"
-          style={{
-            borderColor:
-              "var(--border, #E2E8F0)",
-          }}
+          style={{ borderColor: "var(--border)" }}
         >
           <h3
             className="font-semibold mb-3 text-sm uppercase tracking-wide"
-            style={{
-              color:
-                "var(--muted, #64748B)",
-            }}
+            style={{ color: "var(--muted)" }}
           >
             Workflow
           </h3>
 
-          <ol className="space-y-3 text-sm">
-            {steps.map((step, index) => {
-              const stepNum = index + 1;
+          <ol className="space-y-2 text-sm">
+            {steps.map((s, i) => {
+              const stepNum = i + 1;
 
-              const isBlocked =
-                stepNum === 4;
-
-              const isDone =
-                stepNum < 4;
+              const isBlocked = stepNum === 4;
+              const isDone = stepNum < 4;
 
               return (
                 <li
-                  key={step.name}
+                  key={s.name}
                   className="flex items-center gap-2"
                 >
                   <span>
@@ -818,22 +753,17 @@ export default function DashboardPage() {
 
                   <span
                     className={
-                      isBlocked
-                        ? "font-medium"
-                        : ""
+                      isBlocked ? "font-medium" : ""
                     }
                   >
-                    {step.name}
+                    {s.name}
                   </span>
 
                   <span
                     className="ml-auto text-xs"
-                    style={{
-                      color:
-                        "var(--muted, #64748B)",
-                    }}
+                    style={{ color: "var(--muted)" }}
                   >
-                    {step.department}
+                    {s.department}
                   </span>
                 </li>
               );
@@ -1249,6 +1179,153 @@ export default function DashboardPage() {
           </div>
         )}
       </div>
+      {notificationOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+          onClick={() => setNotificationOpen(false)}
+        >
+          <div
+            className="w-full max-w-md rounded-lg border bg-white p-6 shadow-xl"
+            style={{ borderColor: "var(--border)" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-5">
+              <h2
+                className="text-lg font-semibold"
+                style={{ color: "var(--navy)" }}
+              >
+                Request Missing Document
+              </h2>
+
+              <button
+                onClick={() => {
+                  setNotificationOpen(false);
+                  setNotificationSent(false);
+                }}
+                className="text-lg"
+                style={{ color: "var(--muted)" }}
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="space-y-4 text-sm">
+              <div>
+                <p style={{ color: "var(--muted)" }}>Missing document</p>
+                <p className="font-medium">Acquisition Order</p>
+              </div>
+
+              <div>
+                <p style={{ color: "var(--muted)" }}>Applicant</p>
+                <p className="font-medium">Ram Kumar</p>
+              </div>
+
+              <div>
+                <p className="mb-2" style={{ color: "var(--muted)" }}>
+                  Notify applicant via
+                </p>
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setNotificationMethod("email")}
+                    className="px-4 py-2 rounded border text-sm"
+                    style={{
+                      borderColor:
+                        notificationMethod === "email"
+                          ? "var(--navy)"
+                          : "var(--border)",
+                      background:
+                        notificationMethod === "email" ? "#F0F4FF" : "white",
+                      color: "var(--navy)",
+                    }}
+                  >
+                    Email
+                  </button>
+
+                  <button
+                    onClick={() => setNotificationMethod("sms")}
+                    className="px-4 py-2 rounded border text-sm"
+                    style={{
+                      borderColor:
+                        notificationMethod === "sms"
+                          ? "var(--navy)"
+                          : "var(--border)",
+                      background:
+                        notificationMethod === "sms" ? "#F0F4FF" : "white",
+                      color: "var(--navy)",
+                    }}
+                  >
+                    SMS
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <p className="mb-2" style={{ color: "var(--muted)" }}>
+                  {notificationMethod === "email" ? "Email address" : "Mobile number"}
+                </p>
+
+                <input
+                  type={notificationMethod === "email" ? "email" : "tel"}
+                  defaultValue={
+                    notificationMethod === "email"
+                      ? "ram.kumar@example.com"
+                      : "+91 98765 43210"
+                  }
+                  className="w-full rounded border px-3 py-2 outline-none"
+                  style={{ borderColor: "var(--border)" }}
+                />
+              </div>
+
+              <div>
+                <p className="mb-2" style={{ color: "var(--muted)" }}>
+                  Message
+                </p>
+
+                <textarea
+                  rows={4}
+                  defaultValue="Your Acquisition Order is missing from your land compensation application. Please submit the document to continue processing your case."
+                  className="w-full rounded border px-3 py-2 outline-none resize-none"
+                  style={{ borderColor: "var(--border)" }}
+                />
+              </div>
+            </div>
+
+            {notificationSent && (
+              <p
+                className="mt-4 text-sm"
+                style={{ color: "var(--success)" }}
+              >
+                ✓ Notification sent successfully.
+              </p>
+            )}
+
+            <div className="flex justify-end gap-3 mt-6">
+              <button
+                onClick={() => setNotificationOpen(false)}
+                className="px-4 py-2 rounded border text-sm"
+                style={{
+                  borderColor: "var(--border)",
+                  color: "var(--navy)",
+                }}
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={() => {
+                  setNotificationOpen(false);
+                  setNotificationSent(false);
+                }}
+                className="px-4 py-2 rounded text-sm text-white"
+                style={{ background: "var(--navy)" }}
+              >
+                Send Notification
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }
