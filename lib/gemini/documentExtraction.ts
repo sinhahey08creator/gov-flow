@@ -110,7 +110,7 @@ export async function extractDocument(
   }
 
   try {
-    const model = gemini.getGenerativeModel({ model: "gemini-2.0-flash" });
+    const model = gemini.getGenerativeModel({ model: "gemini-3.5-flash" });
     const result = await model.generateContent([
       EXTRACTION_PROMPT,
       `Document text:\n${trimmed}`,
