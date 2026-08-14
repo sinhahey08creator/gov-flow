@@ -151,7 +151,7 @@ validation (per original spec section 50's test plan).
   next/font/google Geist, because the sandbox this was built in had no
   internet access to fonts.googleapis.com. One-line revert if the next
   environment has internet and wants Geist back.
-- **Gemini model name** hardcoded as "gemini-2.0-flash" — verify this is
+- **Gemini model name** hardcoded as "gemini-3.5-flash" — verify this is
   still current when you pick this up.
 - **DocumentUpload's fake documentText** (see "Not done yet" #3 above) —
   don't mistake this for working PDF parsing, it isn't yet.

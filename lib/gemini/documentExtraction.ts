@@ -110,10 +110,6 @@ export async function extractDocument(
   }
 
   try {
-    // gemini-2.0-flash was shut down by Google on June 1, 2026. Using the
-    // current recommended replacement — check ai.google.dev/gemini-api/docs/deprecations
-    // periodically since Google has been cycling Flash model IDs every
-    // few months.
     const model = gemini.getGenerativeModel({ model: "gemini-3.5-flash" });
     const result = await model.generateContent([
       EXTRACTION_PROMPT,
