@@ -1,10 +1,11 @@
 @import "tailwindcss";
 
 :root {
-  --bg: #F8FAFC;
+  --bg: #F8F7F2;
   --card: #FFFFFF;
-  --border: #E2E8F0;
+  --border: #E5E1D8;
   --navy: #0F2557;
+  --navy-deep: #0B1B3A;
   --navy-light: #1E3A73;
   --text: #0F172A;
   --muted: #64748B;
@@ -18,3 +19,67 @@ body {
   color: var(--text);
   font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
 }
+
+/* GovFlow reusable UI styles */
+
+.gf-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+}
+
+.gf-section-title {
+  color: var(--navy);
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.gf-muted {
+  color: var(--muted);
+}
+
+.gf-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.gf-status-success {
+  color: var(--success);
+  background: #f0fdf4;
+}
+
+.gf-status-warning {
+  color: var(--warning);
+  background: #fffbeb;
+}
+
+.gf-status-critical {
+  color: var(--critical);
+  background: #fef2f2;
+}
+
+.gf-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--navy);
+  background: var(--card);
+  transition: background 0.15s ease;
+}
+
+.gf-button:hover {
+  background: var(--bg);
+}
+
+
