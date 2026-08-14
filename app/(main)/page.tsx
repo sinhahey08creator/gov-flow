@@ -336,6 +336,10 @@ export default function DashboardPage() {
           </span>
 
           <button
+            onClick={() => {
+              setNewCaseOpen(true);
+              setCaseCreated(false);
+            }}
             className="gf-button"
             style={{
               color: "white",
