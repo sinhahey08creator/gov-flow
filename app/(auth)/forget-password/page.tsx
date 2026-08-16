@@ -1,14 +1,34 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import Link from "next/link";
+import { createBrowserClient } from "@/lib/supabase/browser";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    setIsLoading(true);
+
+    const supabase = createBrowserClient();
+    const { error: resetError } = await supabase.auth.resetPasswordForEmail(
+      email.trim(),
+      {
+        redirectTo: `${window.location.origin}/auth/callback?next=/reset-password`,
+      }
+    );
+
+    setIsLoading(false);
+
+    // Always show the same generic success state, whether or not the
+    // email exists — avoids leaking which emails have accounts.
+    if (resetError) {
+      console.error("Password reset error:", resetError);
+    }
+
     setSubmitted(true);
   }
 
@@ -64,6 +84,7 @@ export default function ForgotPasswordPage() {
                 onChange={(event) => setEmail(event.target.value)}
                 placeholder="Enter your email address"
                 required
+                disabled={isLoading}
                 className="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm outline-none focus:border-slate-500"
               />
             </div>
@@ -71,9 +92,10 @@ export default function ForgotPasswordPage() {
             {/* Submit */}
             <button
               type="submit"
-              className="w-full rounded-lg bg-slate-900 px-4 py-3 text-sm font-semibold text-white hover:bg-slate-800"
+              disabled={isLoading}
+              className="w-full rounded-lg bg-slate-900 px-4 py-3 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-70"
             >
-              Send Reset Instructions
+              {isLoading ? "Sending..." : "Send Reset Instructions"}
             </button>
           </form>
         )}

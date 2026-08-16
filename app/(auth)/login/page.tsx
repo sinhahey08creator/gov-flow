@@ -2,10 +2,70 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
+import { createBrowserClient } from "@/lib/supabase/browser";
 
 export default function LoginPage() {
+  const router = useRouter();
+
   const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    console.log("LOGIN SUBMIT FIRED");
+    setError("");
+
+    if (!email.trim() || !password) {
+      setError("Email and password are required.");
+      return;
+    }
+
+    setIsLoading(true);
+
+    const supabase = createBrowserClient();
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email: email.trim(),
+      password,
+    });
+
+    console.log("LOGIN RESULT", { error: signInError });
+
+    if (signInError) {
+      // Log the real error for debugging; show a safe, friendly message.
+      console.error("Login error:", signInError.status, signInError.message);
+
+      setIsLoading(false);
+
+      if (
+        signInError.message.toLowerCase().includes("invalid login credentials")
+      ) {
+        setError("Invalid email or password.");
+      } else if (
+        signInError.message.toLowerCase().includes("email not confirmed")
+      ) {
+        setError(
+          "Your account isn't confirmed yet. Please contact support."
+        );
+      } else {
+        setError(signInError.message);
+      }
+      return;
+    }
+
+    const { data: sessionData } = await supabase.auth.getSession();
+    console.log("SESSION AFTER LOGIN", sessionData);
+
+    // Success: session cookie has been written by the browser client.
+    // router.refresh() re-runs Server Components + proxy.ts with the new
+    // cookie, and router.push() then completes the client-side navigation.
+    router.refresh();
+    router.push("/");
+  }
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-slate-50 px-4">
@@ -32,8 +92,15 @@ export default function LoginPage() {
           </p>
         </div>
 
+        {/* General Error */}
+        {error && (
+          <div className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3">
+            <p className="text-sm text-red-600">{error}</p>
+          </div>
+        )}
+
         {/* Login Form */}
-        <form className="space-y-5">
+        <form className="space-y-5" onSubmit={handleSubmit}>
           {/* Username / Email */}
           <div>
             <label
@@ -47,7 +114,13 @@ export default function LoginPage() {
               id="username"
               name="username"
               type="text"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                if (error) setError("");
+              }}
               placeholder="Enter your username or email"
+              disabled={isLoading}
               className="w-full rounded-lg border border-slate-300 px-4 py-3 text-sm outline-none focus:border-slate-500"
             />
           </div>
@@ -75,7 +148,13 @@ export default function LoginPage() {
                 id="password"
                 name="password"
                 type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  if (error) setError("");
+                }}
                 placeholder="Enter your password"
+                disabled={isLoading}
                 className="w-full rounded-lg border border-slate-300 px-4 py-3 pr-12 text-sm outline-none focus:border-slate-500"
               />
 
@@ -97,9 +176,10 @@ export default function LoginPage() {
           {/* Login Button */}
           <button
             type="submit"
-            className="w-full rounded-lg bg-slate-900 px-4 py-3 text-sm font-semibold text-white hover:bg-slate-800"
+            disabled={isLoading}
+            className="w-full rounded-lg bg-slate-900 px-4 py-3 text-sm font-semibold text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-70"
           >
-            Login
+            {isLoading ? "Signing in..." : "Login"}
           </button>
         </form>
 

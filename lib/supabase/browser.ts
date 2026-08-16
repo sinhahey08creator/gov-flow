@@ -1,9 +1,14 @@
-import { createClient } from "@supabase/supabase-js";
+import { createBrowserClient as createSupabaseBrowserClient } from "@supabase/ssr";
 
 /**
  * Browser-side client. Uses the public anon key only — safe to expose.
  * Anon key can only read (per RLS policies in 0002_rls.sql); it cannot
  * write. All writes go through server.ts using the service role key.
+ *
+ * Uses @supabase/ssr's cookie-based client (instead of plain
+ * @supabase/supabase-js) so the auth session is stored in cookies and
+ * is visible to the root middleware.ts / server components for route
+ * protection, not just localStorage.
  */
 export function createBrowserClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -15,5 +20,5 @@ export function createBrowserClient() {
     );
   }
 
-  return createClient(url, anonKey);
+  return createSupabaseBrowserClient(url, anonKey);
 }

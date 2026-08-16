@@ -24,10 +24,16 @@ export async function POST(request: Request) {
 
     const supabase = createServerClient();
 
+    // email_confirm: true marks the account as confirmed immediately.
+    // This app has no "check your inbox to verify" step in the UI, so an
+    // unconfirmed account (email_confirm: false) would be created
+    // successfully but then be permanently unable to log in — Supabase
+    // rejects signInWithPassword for unconfirmed users with
+    // "Email not confirmed". That is exactly why login was failing.
     const { data, error } = await supabase.auth.admin.createUser({
       email,
       password,
-      email_confirm: false,
+      email_confirm: true,
     });
 
     if (error) {
