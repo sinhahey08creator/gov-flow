@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import Link from "next/link";
 import { extractPdfText, PdfExtractionError } from "@/lib/pdf/extractText";
 
 interface ExtractionData {
@@ -223,7 +224,15 @@ export default function DocumentUpload() {
                 </p>
               )}
               {result.persisted_case_id && (
-                <p className="text-xs" style={{ color: "var(--success)" }}>✓ Saved to case database</p>
+                <p className="text-xs">
+                  <Link
+                    href={`/cases/${result.persisted_case_id}`}
+                    className="font-medium hover:underline"
+                    style={{ color: "var(--success)" }}
+                  >
+                    ✓ Saved to case database — open this case →
+                  </Link>
+                </p>
               )}
             </>
           )}
