@@ -332,7 +332,7 @@ export default function DashboardPage() {
                 "var(--muted, #64748B)",
             }}
           >
-            DEMO MODE · Synthetic Data
+            SYSTEM ACTIVE · Live Workflow Engine
           </span>
 
           <button
