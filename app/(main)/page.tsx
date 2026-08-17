@@ -300,39 +300,38 @@ export default function DashboardPage() {
   return (
     <main className="min-h-screen px-8 py-8 max-w-6xl mx-auto space-y-6">
       {/* HEADER */}
+      {/* HEADER */}
       <div className="flex items-center justify-between">
         <div>
           <h1
             className="text-2xl font-semibold"
             style={{
-              color: "var(--navy, #0F172A)",
+              color: "var(--navy)",
             }}
           >
             GovFlow AI
           </h1>
 
           <p
-            className="text-sm"
+            className="text-sm mt-1"
             style={{
-              color: "var(--muted, #64748B)",
+              color: "var(--muted)",
             }}
           >
-            Intelligent Government Workflow
-            Operations
+            Intelligent Government Workflow Operations
           </p>
         </div>
 
         <div className="flex items-center gap-3">
           <span
-            className="text-xs font-medium px-3 py-1 rounded-full border"
+            className="text-xs font-medium px-3 py-1.5 rounded-full border"
             style={{
-              borderColor:
-                "var(--border, #E2E8F0)",
-              color:
-                "var(--muted, #64748B)",
+              borderColor: "var(--border)",
+              color: "var(--muted)",
+              background: "var(--card)",
             }}
           >
-            DEMO MODE · Synthetic Data
+            SYSTEM ACTIVE · Live Workflow Engine
           </span>
 
           <button
@@ -351,7 +350,6 @@ export default function DashboardPage() {
           </button>
         </div>
       </div>
-
       {/* NEW CASE MODAL */}
       {newCaseOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
@@ -402,26 +400,19 @@ export default function DashboardPage() {
 
                 <select
                   value={caseType}
-                  onChange={(e) =>
-                    setCaseType(e.target.value)
-                  }
+                  onChange={(e) => setCaseType(e.target.value)}
                   className="w-full rounded-md border px-3 py-2 text-sm"
                   style={{
-                    borderColor:
-                      "var(--border, #E2E8F0)",
+                    borderColor: "var(--border, #E2E8F0)",
                   }}
                 >
-                  <option>
-                    Land Compensation
-                  </option>
-
-                  <option>
-                    Birth Certificate Correction
-                  </option>
-
-                  <option>
-                    Citizen Grievance
-                  </option>
+                  <option>Land Compensation</option>
+                  <option>Birth Certificate Correction</option>
+                  <option>Citizen Grievance</option>
+                  <option>Income Certificate</option>
+                  <option>RTI Request</option>
+                  <option>Crop Damage Compensation</option>
+                  <option>Trade License</option>
                 </select>
               </div>
 
@@ -574,7 +565,7 @@ export default function DashboardPage() {
                 onClick={handleCreateCase}
                 className="px-4 py-2 rounded-md text-sm font-medium text-white"
                 style={{
-                  background: "#2563EB",
+                  background: "var(--navy)",
                 }}
               >
                 Create Case
@@ -786,6 +777,11 @@ export default function DashboardPage() {
                     </p>
 
                     <button
+                      onClick={() => {
+                        setNotificationOpen(true);
+                        setNotificationSent(false);
+                        setNotificationError(null);
+                      }}
                       className="gf-button mt-3"
                       style={{
                         color: "var(--navy)",
