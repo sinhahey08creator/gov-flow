@@ -1,6 +1,8 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { extractPdfText, PdfExtractionError } from "@/lib/pdf/extractText";
 
 interface ExtractionData {
@@ -41,18 +43,21 @@ type Stage =
   | "rejected"; // wrong file type / too large
 
 export default function DocumentUpload() {
+  const router = useRouter();
   const [dragActive, setDragActive] = useState(false);
   const [stage, setStage] = useState<Stage>("idle");
   const [fileName, setFileName] = useState<string | null>(null);
   const [pageCount, setPageCount] = useState<number | null>(null);
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [redirectCountdown, setRedirectCountdown] = useState<number | null>(null);
 
   const analyzeFile = useCallback(async (file: File) => {
     setError(null);
     setResult(null);
     setPageCount(null);
     setFileName(file.name);
+    setRedirectCountdown(null);
 
     if (file.type !== "application/pdf") {
       setStage("rejected");
@@ -103,11 +108,28 @@ export default function DocumentUpload() {
 
       setResult(data as AnalysisResult);
       setStage("done");
+      // Case-detail route (/cases/[id]) is now the single authoritative
+      // view for an analyzed case, so once it's actually persisted we
+      // hand off there automatically instead of leaving the user on a
+      // dashboard that still shows unrelated/stale case sections.
+      if (data.persisted_case_id) {
+        setRedirectCountdown(2);
+      }
     } catch {
       setStage("analysis_failed");
       setError("We couldn't reach the AI analysis service. Please check your connection and try again.");
     }
   }, []);
+
+  useEffect(() => {
+    if (redirectCountdown === null || !result?.persisted_case_id) return;
+    if (redirectCountdown <= 0) {
+      router.push(`/cases/${result.persisted_case_id}`);
+      return;
+    }
+    const timer = setTimeout(() => setRedirectCountdown((c) => (c ?? 0) - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [redirectCountdown, result, router]);
 
   function handleDrop(e: React.DragEvent) {
     e.preventDefault();
@@ -223,7 +245,18 @@ export default function DocumentUpload() {
                 </p>
               )}
               {result.persisted_case_id && (
-                <p className="text-xs" style={{ color: "var(--success)" }}>✓ Saved to case database</p>
+                <p className="text-xs">
+                  <Link
+                    href={`/cases/${result.persisted_case_id}`}
+                    className="font-medium hover:underline"
+                    style={{ color: "var(--success)" }}
+                  >
+                    ✓ Saved to case database
+                    {redirectCountdown !== null
+                      ? ` — opening case in ${redirectCountdown}s…`
+                      : " — open this case →"}
+                  </Link>
+                </p>
               )}
             </>
           )}

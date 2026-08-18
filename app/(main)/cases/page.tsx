@@ -207,7 +207,7 @@ export default function CasesPage() {
                     {/* CASE */}
                     <td className="px-5 py-4">
                       <Link
-                        href="/"
+                        href={`/cases/${c.id}`}
                         className="font-semibold hover:underline"
                         style={{ color: "var(--navy)" }}
                       >
